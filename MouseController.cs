@@ -12,7 +12,9 @@ public class MouseController : Singleton<MouseController>
     private bool isJumping = false;
     private float lastVectorX;
 
+
     Transform transformMouse;
+    Transform transCat;
     private Coroutine _movingCoroutine;
 
     Vector3 startGamePosition;
@@ -29,6 +31,7 @@ public class MouseController : Singleton<MouseController>
     {
         _anim.enabled = true;
         StartCoroutine(RandomLine());
+        
     }
 
     public void ResetGame()
@@ -57,6 +60,15 @@ public class MouseController : Singleton<MouseController>
         StartCoroutine(StopJumpCoroutine());
     }
 
+    public void LookToCat()
+    {
+        Vector3 fromTo = transCat.transform.position - transform.position;
+        Vector3 fromToXZ = new Vector3(fromTo.x, 0f, fromTo.z);
+
+        transform.rotation = Quaternion.LookRotation(fromToXZ, Vector3.up);
+    }
+
+    
     private IEnumerator StopJumpCoroutine()
     {
         do
@@ -99,6 +111,7 @@ public class MouseController : Singleton<MouseController>
         _movingCoroutine = StartCoroutine(MoveCoroutine(speed));
     }
 
+
     private IEnumerator MoveCoroutine(float VectorX)
     {
         _isMoving = true;
@@ -120,14 +133,15 @@ public class MouseController : Singleton<MouseController>
         _isMoving = false;
     }
 
-    enum TrackPos { Left = -1, Center = 0, Right = 1 }
+    public enum TrackPos { Left = -1, Center = 0, Right = 1 }
 
-    struct TakeLine
-    {
-        public void SetValues(TrackPos trackPos)
-        { this.trackPos = trackPos; }
-        public TrackPos trackPos;
-    }
+    //struct TakeLine
+    //{
+    //    public void SetValues(TrackPos trackPos)
+    //    { this.trackPos = trackPos; }
+    //    public TrackPos trackPos;
+    //}
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -170,13 +184,16 @@ public class MouseController : Singleton<MouseController>
     {
         _rb = GetComponent<Rigidbody>();
         _anim = GetComponent<Animator>();
+        transCat=GetComponent<Transform>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
+        StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
+
     }
 
 
     void Update()
     {
-
+       
     }
 }
