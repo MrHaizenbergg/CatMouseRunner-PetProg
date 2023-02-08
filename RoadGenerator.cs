@@ -18,7 +18,7 @@ public class RoadGenerator : Singleton<RoadGenerator>
 
     private void Awake()
     {
-        
+
         roads.Add(Roads[0]);
         roads.Add(Roads[1]);
         //PoolManager.Instance.Preload(Roads[0], 15);
@@ -41,9 +41,9 @@ public class RoadGenerator : Singleton<RoadGenerator>
                 Road.transform.position -= new Vector3(0, 0, currentspeed * Time.deltaTime);
         }
 
-        if (roads[0].transform.position.z < -148.5f)
+        if (roads[0].transform.position.z < -150.5f)
         {
-            roads[0].SetActive(false);
+            //roads[0].SetActive(false);
             //PoolManager.Instance.Despawn(roads[0]);
             Destroy(roads[0]);
             roads.RemoveAt(0);
@@ -75,24 +75,27 @@ public class RoadGenerator : Singleton<RoadGenerator>
     public void ResetLevel()
     {
         currentspeed = 0;
-        GameObject road = Roads[0];
-        roads.Add(road);
-        GameObject road2 = Roads[1];
-        roads.Add(road2);
-        //roads.Add(Roads[0]);
-        //roads.Add(Roads[1]);
+        //GameObject road = Roads[0];
+        //roads.Add(road);
+        //GameObject road2 = Roads[1];
+        //roads.Add(road2);
+        roads.Add(Roads[0]);
+        roads.Add(Roads[1]);
         //PoolManager.Instance.Preload(Roads[0], 15);
         //PoolManager.Instance.Preload(Roads[1], 15);
 
         while (roads.Count > 2)
         {
-            if (Roads != null)
+            if (roads[0] != null)
             {
                 roads[0].SetActive(false);
                 //PoolManager.Instance.Despawn(roads[0]);
                 Destroy(roads[0]);
+
+                roads.RemoveAt(0);
+
             }
-            roads.RemoveAt(0);
+
         }
 
         for (int i = 0; i < MaxRoadCount; i++)
