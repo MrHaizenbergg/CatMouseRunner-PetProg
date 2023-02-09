@@ -9,7 +9,6 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     [SerializeField] private GameObject[] items;
     [SerializeField] private Transform _pointToPlayer;
     [SerializeField] private Animator _anim;
-    [SerializeField] private float AngleInDegreece;
 
     public void Start()
     {
@@ -17,11 +16,7 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     }
     public IEnumerator ThrowItem()
     {
-        Vector3 direction;
         int RandomNumber = Random.Range(0, items.Length);
-        //bool isFlyItem;
-        //float x=fromToXZ.magnitude;
-        //float y=fromTo.y;
         _anim.SetTrigger("isTurnBack");
         yield return new WaitForSeconds(1);
         GameObject go = Instantiate((items[RandomNumber]),transform.position,Quaternion.identity);

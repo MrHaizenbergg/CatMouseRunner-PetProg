@@ -69,14 +69,14 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Update()
     {
-        if (transform.position.z < 0.3f)
-        {
-            Debug.Log("Z");
-            float FixedMoveZ = transform.position.z;
-            FixedMoveZ = 0.3f;
-            transform.position = new Vector3(transform.position.x, transform.position.y,
-            FixedMoveZ);
-        }
+        //if (transform.position.z < 0.3f)
+        //{
+        //    Debug.Log("Z");
+        //    float FixedMoveZ = transform.position.z;
+        //    FixedMoveZ = 0.3f;
+        //    transform.position = new Vector3(transform.position.x, transform.position.y,
+        //    FixedMoveZ);
+        //}
 
     }
     public void StartGame()
@@ -139,6 +139,14 @@ public class PlayerController : Singleton<PlayerController>
         rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
         Physics.gravity = new Vector3(0, jumpGravity, 0);
         StartCoroutine(StopJumpCoroutine());
+    }
+
+    public void Death()
+    {
+        Destroy(this.gameObject);
+        StartLevel();
+        
+
     }
 
     void MoveHorizontal(float speed)
@@ -217,6 +225,16 @@ public class PlayerController : Singleton<PlayerController>
         isImmortal = false;
 
     }
+    //public void SpeedIncrease()
+    //{
+    //    rb.velocity = new Vector3(0f, 0f, 5f);
+    //    //currentspeed += 5;
+    //    //if (currentspeed > Maxspeed)
+    //    //{
+    //    //    currentspeed -= 5;
+    //    //    StartCoroutine(SpeedIncrease());
+    //    //}
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
@@ -237,7 +255,7 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "BonusFish")
         {
-            StartCoroutine(RoadGenerator.Instance.SpeedIncrease());
+            //SpeedIncrease();
         }
         if (other.gameObject.tag == "BonusShield")
         {

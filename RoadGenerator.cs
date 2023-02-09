@@ -106,14 +106,5 @@ public class RoadGenerator : Singleton<RoadGenerator>
         MapGenerator.Instance.ResetMaps();
     }
 
-    public IEnumerator SpeedIncrease()
-    {
-        currentspeed += 5;
-        yield return new WaitForSeconds(4);
-        if (currentspeed > Maxspeed)
-        {
-            currentspeed -= 5;
-            //StartCoroutine(SpeedIncrease());
-        }
-    }
+    
 }

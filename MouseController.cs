@@ -31,7 +31,7 @@ public class MouseController : Singleton<MouseController>
     {
         _anim.enabled = true;
         StartCoroutine(RandomLine());
-        
+
     }
 
     public void ResetGame()
@@ -68,7 +68,7 @@ public class MouseController : Singleton<MouseController>
         transform.rotation = Quaternion.LookRotation(fromToXZ, Vector3.up);
     }
 
-    
+
     private IEnumerator StopJumpCoroutine()
     {
         do
@@ -86,11 +86,12 @@ public class MouseController : Singleton<MouseController>
 
     private IEnumerator RandomLine()
     {
+        bool _endMove;
         if (pointFinish > -laneOffset)
             StartCoroutine(MoveHorizontal(((int)TrackPos.Left)));
         else if (pointFinish < laneOffset)
             StartCoroutine(MoveHorizontal(((int)TrackPos.Right)));
-        if (pointFinish < laneOffset && pointFinish > -laneOffset)
+        if (pointFinish < laneOffset && pointFinish > -laneOffset)   
             StartCoroutine(MoveHorizontal(Random.Range((int)TrackPos.Left, (int)TrackPos.Right)));
         yield return new WaitForSeconds(3);
         StartCoroutine(RandomLine());
@@ -184,7 +185,7 @@ public class MouseController : Singleton<MouseController>
     {
         _rb = GetComponent<Rigidbody>();
         _anim = GetComponent<Animator>();
-        transCat=GetComponent<Transform>();
+        transCat = GetComponent<Transform>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
         StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
@@ -194,6 +195,6 @@ public class MouseController : Singleton<MouseController>
 
     void Update()
     {
-       
+
     }
 }
