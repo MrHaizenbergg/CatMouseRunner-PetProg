@@ -17,7 +17,7 @@ public class MainMenu : Singleton<MainMenu>
     public void PlayGame()
     {
         SceneManager.LoadScene(0);
-        PlayerController.Instance.StartGame();
+        //PlayerController.Instance.StartGame();
     }
     
 }

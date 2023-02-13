@@ -10,11 +10,14 @@ public class Health : Singleton<Health>
 
     public event Action<float> HealtChange;
 
-    private void ChangeHealth(int health)
+    public void ChangeHealth(int health)
     {
-        _currentHealth += health;
+            _currentHealth += health;
 
-        if(_currentHealth <= 0)
+        if (_currentHealth !> _maxHealth)
+            _currentHealth=health;
+
+        if (_currentHealth <= 0)
         {
             HealtChange?.Invoke(0);
             PlayerController.Instance.Death();
@@ -22,13 +25,14 @@ public class Health : Singleton<Health>
         }
         else
         {
-            float _currentHealthInPercent=(float)_currentHealth/_maxHealth;
+            float _currentHealthInPercent = (float)_currentHealth / _maxHealth;
             HealtChange?.Invoke(_currentHealthInPercent);
         }
+
     }
     private void Start()
     {
-        _currentHealth=_maxHealth;
+        _currentHealth = _maxHealth;
     }
     private void Update()
     {

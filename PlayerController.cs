@@ -64,7 +64,7 @@ public class PlayerController : Singleton<PlayerController>
         counter = PlayerPrefs.GetInt("coins");
         isImmortal = false;
         //jumpEvent += Jump;
-        
+
     }
 
     private void Update()
@@ -82,7 +82,6 @@ public class PlayerController : Singleton<PlayerController>
     public void StartGame()
     {
         anim.enabled = true;
-
         MouseController.Instance.StartGame();
         //anim.SetTrigger("Run");
     }
@@ -90,6 +89,8 @@ public class PlayerController : Singleton<PlayerController>
     public void StartLevel()
     {
         //StartGame();
+        Debug.Log("Start");
+        StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
         RoadGenerator.Instance.StartLevel();
     }
 
@@ -98,16 +99,19 @@ public class PlayerController : Singleton<PlayerController>
         rb.velocity = Vector3.zero;
         pointStart = 0;
         pointFinish = 0;
+        anim.SetTrigger("isIdle");
         anim.applyRootMotion = true;
         anim.enabled = false;
-        anim.SetTrigger("isIdle");
         counter = 0;
 
         transform.position = startGamePosition;
         transform.rotation = startGameRotation;
 
+        Health.Instance.ChangeHealth(+100);
         MouseController.Instance.ResetGame();
         RoadGenerator.Instance.ResetLevel();
+        //StopCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
+        ItemGeneratorFabric.Instance.StopThrowItem();
     }
 
     void MovePlayer(bool[] swipes)
@@ -130,7 +134,7 @@ public class PlayerController : Singleton<PlayerController>
         }
 
     }
-    
+
     void Jump()
     {
         anim.applyRootMotion = false;
@@ -143,10 +147,11 @@ public class PlayerController : Singleton<PlayerController>
 
     public void Death()
     {
-        Destroy(this.gameObject);
-        StartLevel();
-        
-
+        RoadGenerator.Instance.StopGame();
+        anim.SetTrigger("isDying");
+        anim.applyRootMotion = true;
+        MouseController.Instance.ResetGame();
+        StopCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
     }
 
     void MoveHorizontal(float speed)
@@ -288,6 +293,31 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.tag == "NotLose")
         {
             MoveHorizontal(-lastVectorX);
+        }
+        if (collision.gameObject.tag == "Toster")
+        {
+            ItemGeneratorFabric.Instance.GetItem((ItemType)0);
+            Health.Instance.ChangeHealth(-20);
+        }
+        if (collision.gameObject.tag == "Cubok1")
+        {
+            ItemGeneratorFabric.Instance.GetItem((ItemType)1);
+            Health.Instance.ChangeHealth(-10);
+        }
+        if (collision.gameObject.tag == "Cubok2")
+        {
+            ItemGeneratorFabric.Instance.GetItem((ItemType)2);
+            Health.Instance.ChangeHealth(-20);
+        }
+        if (collision.gameObject.tag == "Telek")
+        {
+            ItemGeneratorFabric.Instance.GetItem((ItemType)3);
+            Health.Instance.ChangeHealth(-20);
+        }
+        if (collision.gameObject.tag == "Plant")
+        {
+            ItemGeneratorFabric.Instance.GetItem((ItemType)4);
+            Health.Instance.ChangeHealth(-20);
         }
     }
 

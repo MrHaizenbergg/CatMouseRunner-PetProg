@@ -9,7 +9,7 @@ public class Obstacles : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            other.gameObject.GetComponent<PlayerController>().ResetGame();
+            //other.gameObject.GetComponent<PlayerController>().ResetGame();
         }
 
     }

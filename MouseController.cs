@@ -188,13 +188,6 @@ public class MouseController : Singleton<MouseController>
         transCat = GetComponent<Transform>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
-        StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
-
-    }
-
-
-    void Update()
-    {
 
     }
 }

@@ -52,6 +52,11 @@ public class RoadGenerator : Singleton<RoadGenerator>
         }
     }
 
+    public void StopGame()
+    {
+        currentspeed = 0;
+    }
+
     void CreateNextRoad(int index)
     {
         Vector3 pos = Vector3.zero;
