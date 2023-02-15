@@ -13,6 +13,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private float laneChangeSpeed = 15;
     [SerializeField] private Text CounterText;
     [SerializeField] private Text RecordText;
+    //[SerializeField] private float Speed = 10f;
     Transform player;
 
     private CapsuleCollider col;
@@ -35,8 +36,6 @@ public class PlayerController : Singleton<PlayerController>
 
     public static int counter;
 
-    //public delegate void JumpDel();
-    //public static event JumpDel jumpEvent;
 
     void Start()
     {
@@ -67,18 +66,10 @@ public class PlayerController : Singleton<PlayerController>
 
     }
 
-    private void Update()
-    {
-        //if (transform.position.z < 0.3f)
-        //{
-        //    Debug.Log("Z");
-        //    float FixedMoveZ = transform.position.z;
-        //    FixedMoveZ = 0.3f;
-        //    transform.position = new Vector3(transform.position.x, transform.position.y,
-        //    FixedMoveZ);
-        //}
-
-    }
+    //private void FixedUpdate()
+    //{
+    //    MoveLogic();
+    //}
     public void StartGame()
     {
         anim.enabled = true;
@@ -134,6 +125,16 @@ public class PlayerController : Singleton<PlayerController>
         }
 
     }
+
+    //private void MoveLogic()
+    //{
+    //    float moveSpeed = Speed;
+
+    //    //Vector3 movement = new Vector3(0.0f, 0.0f, moveSpeed);
+
+    //    //rb.(movement * Speed);
+    //    rb.velocity = new Vector3(0, 0, Speed);
+    //}
 
     void Jump()
     {
