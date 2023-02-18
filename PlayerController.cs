@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerController : Singleton<PlayerController>
@@ -62,27 +63,24 @@ public class PlayerController : Singleton<PlayerController>
         SwipeManager.instance.MoveEvent += MovePlayer;
         counter = PlayerPrefs.GetInt("coins");
         isImmortal = false;
-        //jumpEvent += Jump;
 
     }
 
-    //private void FixedUpdate()
-    //{
-    //    MoveLogic();
-    //}
     public void StartGame()
     {
         anim.enabled = true;
         MouseController.Instance.StartGame();
-        //anim.SetTrigger("Run");
     }
 
     public void StartLevel()
     {
-        //StartGame();
-        Debug.Log("Start");
         StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
         RoadGenerator.Instance.StartLevel();
+    }
+    public void ReturnToMenu()
+    {
+        //SceneManager.UnloadSceneAsync(1);
+        SceneManager.LoadScene(0);
     }
 
     public void ResetGame()
@@ -101,7 +99,6 @@ public class PlayerController : Singleton<PlayerController>
         Health.Instance.ChangeHealth(+100);
         MouseController.Instance.ResetGame();
         RoadGenerator.Instance.ResetLevel();
-        //StopCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
         ItemGeneratorFabric.Instance.StopThrowItem();
     }
 
@@ -125,16 +122,6 @@ public class PlayerController : Singleton<PlayerController>
         }
 
     }
-
-    //private void MoveLogic()
-    //{
-    //    float moveSpeed = Speed;
-
-    //    //Vector3 movement = new Vector3(0.0f, 0.0f, moveSpeed);
-
-    //    //rb.(movement * Speed);
-    //    rb.velocity = new Vector3(0, 0, Speed);
-    //}
 
     void Jump()
     {
@@ -271,7 +258,6 @@ public class PlayerController : Singleton<PlayerController>
         {
             counter++;
             int lastRunscore = int.Parse(CounterText.text.ToString());
-            //PlayerPrefs.SetInt("coins",counter);
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
         }

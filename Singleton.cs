@@ -32,7 +32,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                     go.name = typeof(T).ToString();
                     instance = go.AddComponent<T>();
                 }
-                DontDestroyOnLoad(instance);
+                //DontDestroyOnLoad(instance);
                 return instance;
             }
         }
