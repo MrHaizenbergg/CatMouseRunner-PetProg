@@ -2,6 +2,8 @@ using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
+
 
 public class MapDisplayLevSel : MonoBehaviour
 {
@@ -10,9 +12,18 @@ public class MapDisplayLevSel : MonoBehaviour
     [SerializeField] private Image mapImage;
     [SerializeField] private Button playButton;
     [SerializeField] private GameObject lockImage;
+    public UnityAction OnClick;
 
-    public void DisplayMap(MapLevelSelect map)
+    private void Awake()
     {
+        //OnClick += () =>
+        playButton.onClick.Invoke();
+        //playButton += SceneManager.LoadScene();
+    }
+
+    public void DisplayMap(Map map)
+    {
+
         mapName.text = map.name;
         mapDescription.text = map.mapDescription;
         mapImage.sprite = map.mapImage;
@@ -21,13 +32,15 @@ public class MapDisplayLevSel : MonoBehaviour
 
         lockImage.SetActive(!mapUnlocked);
         playButton.interactable=mapUnlocked;
-
-        if(mapUnlocked)
+        
+        if (mapUnlocked)
             mapImage.color=Color.white;
         else
             mapImage.color=Color.grey;
 
-        playButton.onClick.RemoveAllListeners();
-        playButton.onClick.AddListener(() => SceneManager.LoadScene(map.SceneToLoad.name));
+        playButton?.onClick.RemoveAllListeners();
+        playButton?.onClick.AddListener(() => SceneManager.LoadScene(map.SceneToLoad.name));
+
     }
+
 }

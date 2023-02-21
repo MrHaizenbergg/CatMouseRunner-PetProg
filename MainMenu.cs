@@ -15,7 +15,7 @@ public class MainMenu : Singleton<MainMenu>
     }
     public void PlayGame()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
     public void StopGame()
     {
@@ -24,7 +24,7 @@ public class MainMenu : Singleton<MainMenu>
     }
     public void SelectLevel()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(1);
     }
     public void ExitGame()
     {

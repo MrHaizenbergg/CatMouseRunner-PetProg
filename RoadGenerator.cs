@@ -21,8 +21,8 @@ public class RoadGenerator : Singleton<RoadGenerator>
     {
         PoolManager.Instance.Preload(Roads[0], 3);
         PoolManager.Instance.Preload(Roads[1], 3);
-        PoolManager.Instance.Preload(Roads[2], 3);
-        PoolManager.Instance.Preload(Roads[3], 3);
+        //PoolManager.Instance.Preload(Roads[2], 3);
+        //PoolManager.Instance.Preload(Roads[3], 3);
     }
 
     void Start()

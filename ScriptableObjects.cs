@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ScriptableObjectsController : MonoBehaviour
+public class ScriptableObjects : MonoBehaviour
 {
     [SerializeField] private ScriptableObject[] scriptableObjects;
     [SerializeField] private MapDisplayLevSel mapDisplay;
@@ -13,10 +13,11 @@ public class ScriptableObjectsController : MonoBehaviour
 
     public void ChangeScriptableObject(int change)
     {
-        currentIndex+=change;
+        currentIndex += change;
         if (currentIndex < 0) currentIndex = scriptableObjects.Length - 1;
-        else if(currentIndex > scriptableObjects.Length-1) currentIndex = 0;
+        else if (currentIndex > scriptableObjects.Length - 1) currentIndex = 0;
 
-        if (mapDisplay != null) mapDisplay.DisplayMap((MapLevelSelect)scriptableObjects[currentIndex]);
+        if (mapDisplay != null) mapDisplay.DisplayMap((Map)scriptableObjects[currentIndex]);
     }
+
 }

@@ -30,7 +30,10 @@ public class MouseController : Singleton<MouseController>
     public void StartGame()
     {
         _anim.enabled = true;
-        StartCoroutine(RandomLine());
+        if (isJumping == false)
+        {
+            StartCoroutine(RandomLine());
+        }
 
     }
 
@@ -86,13 +89,23 @@ public class MouseController : Singleton<MouseController>
 
     private IEnumerator RandomLine()
     {
-        bool _endMove;
-        if (pointFinish > -laneOffset)
-            StartCoroutine(MoveHorizontal(((int)TrackPos.Left)));
-        else if (pointFinish < laneOffset)
-            StartCoroutine(MoveHorizontal(((int)TrackPos.Right)));
-        if (pointFinish < laneOffset && pointFinish > -laneOffset)   
-            StartCoroutine(MoveHorizontal(Random.Range((int)TrackPos.Left, (int)TrackPos.Right)));
+        if (isJumping == false)
+        {
+            int i = Random.Range(1, 3);
+            switch (i)
+            {
+                case 1:
+                    Debug.Log("Left");
+                    if (pointFinish > -laneOffset)
+                        StartCoroutine(MoveHorizontal(-0.5f));
+                    break;
+                case 2:
+                    Debug.Log("Right");
+                    if (pointFinish < laneOffset)
+                        StartCoroutine(MoveHorizontal(0.5f));
+                    break;
+            }
+        }
         yield return new WaitForSeconds(3);
         StartCoroutine(RandomLine());
     }
@@ -136,20 +149,8 @@ public class MouseController : Singleton<MouseController>
 
     public enum TrackPos { Left = -1, Center = 0, Right = 1 }
 
-    //struct TakeLine
-    //{
-    //    public void SetValues(TrackPos trackPos)
-    //    { this.trackPos = trackPos; }
-    //    public TrackPos trackPos;
-    //}
-
-
     private void OnTriggerEnter(Collider other)
     {
-        //if (pointFinish > -laneOffset)
-        //    StartCoroutine(MoveHorizontal((int)TrackPos.Left));
-        //if (pointFinish < laneOffset)
-        //    StartCoroutine(MoveHorizontal((int)TrackPos.Right));
         if (other.gameObject.tag == "Obstacle3")
             if (isJumping == false)
                 JumpMouse();
@@ -158,7 +159,7 @@ public class MouseController : Singleton<MouseController>
         if (other.gameObject.name == "ColMouseRunRight")
             StartCoroutine(MoveHorizontal((int)TrackPos.Right));
         if (other.gameObject.name == "ColSavePosition")
-            StartCoroutine(MoveHorizontal((int)TrackPos.Center));
+            StartCoroutine(MoveHorizontal(0));
     }
 
     //private void OnTriggerEnter(Collider other)
