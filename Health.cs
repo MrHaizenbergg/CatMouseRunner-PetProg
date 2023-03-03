@@ -16,12 +16,14 @@ public class Health : Singleton<Health>
 
         if (_currentHealth !> _maxHealth)
             _currentHealth=health;
+        
 
         if (_currentHealth <= 0)
         {
             HealtChange?.Invoke(0);
             PlayerController.Instance.Death();
-            Debug.Log("You are Dead");
+            Debug.Log("Cat is Dead");
+           
         }
         else
         {

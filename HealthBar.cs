@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     [SerializeField] private Image _healthBarFill;
-
     [SerializeField] Health _health;
 
     private void OnHealthChanged(float valuePercent)

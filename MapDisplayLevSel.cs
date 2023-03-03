@@ -14,16 +14,8 @@ public class MapDisplayLevSel : MonoBehaviour
     [SerializeField] private GameObject lockImage;
     public UnityAction OnClick;
 
-    private void Awake()
-    {
-        //OnClick += () =>
-        playButton.onClick.Invoke();
-        //playButton += SceneManager.LoadScene();
-    }
-
     public void DisplayMap(Map map)
     {
-
         mapName.text = map.name;
         mapDescription.text = map.mapDescription;
         mapImage.sprite = map.mapImage;
@@ -38,6 +30,7 @@ public class MapDisplayLevSel : MonoBehaviour
         else
             mapImage.color=Color.grey;
 
+         
         playButton?.onClick.RemoveAllListeners();
         playButton?.onClick.AddListener(() => SceneManager.LoadScene(map.SceneToLoad.name));
 

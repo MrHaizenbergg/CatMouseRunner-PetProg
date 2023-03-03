@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-[CreateAssetMenu (fileName ="New Map",menuName ="Scriptable Objects/Map")]
+[CreateAssetMenu(fileName = "Map", menuName = "ScriptableObjects/Map")]
 public class Map : ScriptableObject
 {
     public int mapIndex;
@@ -11,3 +10,4 @@ public class Map : ScriptableObject
     public Sprite mapImage;
     public Object SceneToLoad;
 }
+

@@ -14,13 +14,16 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private float laneChangeSpeed = 15;
     [SerializeField] private Text CounterText;
     [SerializeField] private Text RecordText;
-    //[SerializeField] private float Speed = 10f;
+    [SerializeField] private Button activeShotGunButton;
+    [SerializeField] private GameObject[] Weapons;
     Transform player;
 
+    private Health _healthNotChange;
     private CapsuleCollider col;
     public Animator anim;
     Rigidbody rb;
     Coroutine movingCoroutine;
+    Coroutine shieldCoroutine;
 
     float pointStart;
     float laneOffset;
@@ -29,6 +32,7 @@ public class PlayerController : Singleton<PlayerController>
     float jumpPower = 14;
     float jumpGravity = -40;
     float realGravity = -9.8f;
+    float intervalLight = 1f;
 
     private bool isMoving = false;
     private bool isImmortal;
@@ -37,6 +41,10 @@ public class PlayerController : Singleton<PlayerController>
 
     public static int counter;
 
+    private void Awake()
+    {
+        _healthNotChange=GetComponent<Health>();
+    }
 
     void Start()
     {
@@ -70,16 +78,17 @@ public class PlayerController : Singleton<PlayerController>
     {
         anim.enabled = true;
         MouseController.Instance.StartGame();
+        ItemGeneratorFabric.Instance.StartThrowItem();
     }
 
     public void StartLevel()
     {
-        StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
+        //StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
+        
         RoadGenerator.Instance.StartLevel();
     }
     public void ReturnToMenu()
     {
-        //SceneManager.UnloadSceneAsync(1);
         SceneManager.LoadScene(0);
     }
 
@@ -96,10 +105,13 @@ public class PlayerController : Singleton<PlayerController>
         transform.position = startGamePosition;
         transform.rotation = startGameRotation;
 
+        ItemGeneratorFabric.Instance.StopThrowItem();
+        //ShotGun.Instance.StopReloadCoroutine();
+        LoseShotGun();
         Health.Instance.ChangeHealth(+100);
+        HealthMouse.Instance.ChangeHealthMouse(+100);
         MouseController.Instance.ResetGame();
         RoadGenerator.Instance.ResetLevel();
-        ItemGeneratorFabric.Instance.StopThrowItem();
     }
 
     void MovePlayer(bool[] swipes)
@@ -123,6 +135,25 @@ public class PlayerController : Singleton<PlayerController>
 
     }
 
+    public void PickUpShotGun()
+    {
+        anim.SetBool("isRiffleRun",true);
+        Weapons[0].SetActive(true);
+        activeShotGunButton.gameObject.SetActive(true);
+    }
+    
+    public void LoseShotGun()
+    {
+        anim.SetBool("isRiffleRun", false);
+        Weapons[0].SetActive(false);
+        activeShotGunButton.gameObject.SetActive(false);
+    }
+
+    public void VictoryCat()
+    {
+        anim.SetTrigger("isVictory");
+    }
+
     void Jump()
     {
         anim.applyRootMotion = false;
@@ -139,7 +170,7 @@ public class PlayerController : Singleton<PlayerController>
         anim.SetTrigger("isDying");
         anim.applyRootMotion = true;
         MouseController.Instance.ResetGame();
-        StopCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
+        ItemGeneratorFabric.Instance.StopThrowItem();
     }
 
     void MoveHorizontal(float speed)
@@ -209,15 +240,15 @@ public class PlayerController : Singleton<PlayerController>
 
     }
 
-    private IEnumerator ShieldBonus()
-    {
-        isImmortal = true;
+    //private IEnumerator ShieldBonus()
+    //{
+    //    isImmortal = true;
+    //    _healthNotChange.enabled = false;
+    //    yield return new WaitForSeconds(5);
+    //    isImmortal = false;
+    //    _healthNotChange.enabled = true;
 
-        yield return new WaitForSeconds(5);
-
-        isImmortal = false;
-
-    }
+    //}
     //public void SpeedIncrease()
     //{
     //    rb.velocity = new Vector3(0f, 0f, 5f);
@@ -252,7 +283,7 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "BonusShield")
         {
-            StartCoroutine(ShieldBonus());
+            //StartCoroutine(ShieldBonus());
         }
         if (other.gameObject.tag == "Coin")
         {
@@ -271,7 +302,7 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
@@ -281,30 +312,45 @@ public class PlayerController : Singleton<PlayerController>
         {
             MoveHorizontal(-lastVectorX);
         }
-        if (collision.gameObject.tag == "Toster")
+        if (collision.gameObject.tag == "Toaster")
         {
-            ItemGeneratorFabric.Instance.GetItem((ItemType)0);
+            //ItemGeneratorFabric.Instance.GetItem((ItemType)0);
+            LoseShotGun();
+            anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            //StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok1")
         {
-            ItemGeneratorFabric.Instance.GetItem((ItemType)1);
+            //ItemGeneratorFabric.Instance.GetItem((ItemType)1);
+            LoseShotGun();
+            anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-10);
+            //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok2")
         {
-            ItemGeneratorFabric.Instance.GetItem((ItemType)2);
+            //ItemGeneratorFabric.Instance.GetItem((ItemType)2);
+            LoseShotGun();
+            anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Telek")
         {
-            ItemGeneratorFabric.Instance.GetItem((ItemType)3);
+            // ItemGeneratorFabric.Instance.GetItem((ItemType)3);
+            LoseShotGun();
+            anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Plant")
         {
-            ItemGeneratorFabric.Instance.GetItem((ItemType)4);
+            //ItemGeneratorFabric.Instance.GetItem((ItemType)4);
+            LoseShotGun();
+            anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
     }
 
