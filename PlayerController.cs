@@ -78,13 +78,13 @@ public class PlayerController : Singleton<PlayerController>
     {
         anim.enabled = true;
         MouseController.Instance.StartGame();
-        ItemGeneratorFabric.Instance.StartThrowItem();
+        
     }
 
     public void StartLevel()
     {
         //StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
-        
+        ItemGeneratorFabric.Instance.StartThrowItem();
         RoadGenerator.Instance.StartLevel();
     }
     public void ReturnToMenu()
@@ -220,7 +220,7 @@ public class PlayerController : Singleton<PlayerController>
         {
             isJumping = false;
 
-            Physics.gravity = new Vector3(0, realGravity, 0);
+            //Physics.gravity = new Vector3(0, realGravity, 0);
         }
     }
 
@@ -318,6 +318,7 @@ public class PlayerController : Singleton<PlayerController>
             LoseShotGun();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            Destroy(collision.gameObject);
             //StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok1")
@@ -326,6 +327,7 @@ public class PlayerController : Singleton<PlayerController>
             LoseShotGun();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-10);
+            Destroy(collision.gameObject);
             //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok2")
@@ -334,6 +336,7 @@ public class PlayerController : Singleton<PlayerController>
             LoseShotGun();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            Destroy(collision.gameObject);
             //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Telek")
@@ -342,6 +345,7 @@ public class PlayerController : Singleton<PlayerController>
             LoseShotGun();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            Destroy(collision.gameObject);
             //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Plant")
@@ -350,6 +354,7 @@ public class PlayerController : Singleton<PlayerController>
             LoseShotGun();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
+            Destroy(collision.gameObject);
             //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
     }

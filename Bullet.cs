@@ -29,5 +29,6 @@ public class Bullet : MonoBehaviour
     {
         yield return new WaitForSeconds(3);
         Destroy(gameObject);
+        StopCoroutine(liveBullet);
     }
 }

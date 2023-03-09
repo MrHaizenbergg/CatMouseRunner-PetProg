@@ -67,9 +67,10 @@ public class MouseController : Singleton<MouseController>
 
     private void JumpMouse()
     {
+        isJumpingMouse = true;
+
         _anim.applyRootMotion = false;
         _anim.SetBool("isJump", true);
-        isJumpingMouse = true;
         _rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
         Physics.gravity = new Vector3(0, jumpGravity, 0);
         StartCoroutine(StopJumpCoroutine());
@@ -114,8 +115,16 @@ public class MouseController : Singleton<MouseController>
                     if (pointFinish < laneOffset)
                         StartCoroutine(MoveHorizontal(0.5f));
                     break;
+                default:
+                    if (pointFinish < -laneOffset)
+                        StartCoroutine(MoveHorizontal(-0.5f));
+                    if (pointFinish > laneOffset)
+                        StartCoroutine(MoveHorizontal(0.5f));
+                    break;
+
             }
         }
+
         yield return new WaitForSeconds(3);
         randomLine = StartCoroutine(RandomLine());
     }

@@ -32,7 +32,7 @@ public class MapDisplayLevSel : MonoBehaviour
 
          
         playButton?.onClick.RemoveAllListeners();
-        playButton?.onClick.AddListener(() => SceneManager.LoadScene(map.SceneToLoad.name));
+        playButton?.onClick.AddListener(() => SceneManager.LoadScene(map.mapName));
 
     }
 

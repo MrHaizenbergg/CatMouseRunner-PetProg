@@ -21,6 +21,7 @@ public class HealthMouse : Singleton<HealthMouse>
         if (_currentHealth <= 0)
         {
             HealtChangeMouse?.Invoke(0);
+            _currentHealth = 0;
             PlayerController.Instance.VictoryCat();
             MouseController.Instance.DeathMouse();
             Debug.Log("Mouse is Dead");

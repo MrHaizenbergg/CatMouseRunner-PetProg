@@ -10,7 +10,7 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     [SerializeField] private Animator _anim;
     Coroutine throwItemCoroutine;
 
-    private List<GameObject> _inactiveItems = new List<GameObject>();
+    public List<GameObject> _inactiveItems = new List<GameObject>();
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
         _inactiveItems.Add(items[4]);
     }
 
-    public IEnumerator ThrowItem()
+    private IEnumerator ThrowItem()
     {
         int RandomNumber = Random.Range(0, _inactiveItems.Count);
         _anim.SetTrigger("isTurnBack");
@@ -29,14 +29,14 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
         GameObject go = Instantiate((_inactiveItems[RandomNumber]), transform.position, Quaternion.identity);
         go.SetActive(true);
         Rigidbody rb = go.GetComponentInChildren<Rigidbody>();
-        //rb.AddForce(-transform.position*4f, ForceMode.Impulse);
-        rb.velocity = new Vector3(0f, 0f, -15f);
-        //rb.transform.position= Vector3.MoveTowards(_pointToPlayer.transform.position, transform.position, 50f * Time.deltaTime);
+        Vector3 pos = new Vector3(0f,0f,1f);
+        rb.AddForce(-pos*13f, ForceMode.VelocityChange);
         Debug.Log("Throw");
         yield return new WaitForSeconds(1.5f);
         go.SetActive(false);
+        yield return new WaitForFixedUpdate();
         Destroy(go);
-        //Destroy(go);
+ 
         yield return new WaitForSeconds(8);
         if (MouseController.Instance.isJumpingMouse == false)
             throwItemCoroutine = StartCoroutine(ThrowItem());

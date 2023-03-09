@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShotGun : Singleton<ShotGun>
@@ -6,17 +7,26 @@ public class ShotGun : Singleton<ShotGun>
     [SerializeField] private int _damage = 10;
     [SerializeField] private float _range = 100f;
     [SerializeField] private float _timeToReload = 3;
-    [SerializeField] private GameObject _bullet;
+    [SerializeField] private GameObject[] _bullets;
     [SerializeField] private Transform _spawnBullet;
     [SerializeField] private GameObject mouseObject;
+    Coroutine liveBullet;
     Coroutine _reloadCoroutine;
     public float timeDestroy = 3f;
+
+    private List<GameObject> _inactiveBullets = new List<GameObject>();
 
     private bool _reload = false;
     public float spread;
     public float shootForce;
 
     public Camera fpsCam;
+
+    private void Awake()
+    {
+        _inactiveBullets.Add(_bullets[0]);
+        _inactiveBullets.Add(_bullets[1]);
+    }
 
     public void PressShootShotGun()
     {
@@ -35,8 +45,6 @@ public class ShotGun : Singleton<ShotGun>
             yield return new WaitForSeconds(3);
             _reload = false;
         
-
-
     }
 
     public void Reload()
@@ -54,7 +62,7 @@ public class ShotGun : Singleton<ShotGun>
         if (Physics.Raycast(ray, out hit))
             targetPoint = hit.point;
         else
-            targetPoint = ray.GetPoint(75);
+            targetPoint = ray.GetPoint(0);
 
         PlayerController.Instance.anim.SetTrigger("isShoot");
         Vector3 dirWithoutSpread = targetPoint - _spawnBullet.position;
@@ -64,10 +72,13 @@ public class ShotGun : Singleton<ShotGun>
 
         Vector3 dirWithSpread = dirWithoutSpread + new Vector3(x, y, 0);
         //float quater = Quaternion.Euler(0, 0, 0);
-        GameObject currentBullet = Instantiate(_bullet, _spawnBullet.position, Quaternion.identity);
+        GameObject currentBullet = Instantiate(_inactiveBullets[0], _spawnBullet.position, Quaternion.identity);
+
+        currentBullet.SetActive(true);
 
         currentBullet.transform.forward = dirWithSpread.normalized;
         currentBullet.GetComponent<Rigidbody>().AddForce(dirWithSpread.normalized * shootForce, ForceMode.Impulse);
+
         //currentBullet.GetComponent<Rigidbody>().velocity=dirWithSpread.normalized*shootForce;
 
         //    Destroy(currentBullet);

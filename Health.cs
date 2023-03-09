@@ -12,18 +12,19 @@ public class Health : Singleton<Health>
 
     public void ChangeHealth(int health)
     {
-            _currentHealth += health;
+        _currentHealth += health;
 
-        if (_currentHealth !> _maxHealth)
-            _currentHealth=health;
+        if (_currentHealth! > _maxHealth)
+            _currentHealth = health;
         
 
         if (_currentHealth <= 0)
         {
             HealtChange?.Invoke(0);
+            _currentHealth = 0;
             PlayerController.Instance.Death();
             Debug.Log("Cat is Dead");
-           
+
         }
         else
         {
