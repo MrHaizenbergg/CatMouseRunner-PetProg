@@ -14,6 +14,7 @@ public class RoadGenerator : Singleton<RoadGenerator>
     private List<GameObject> roads = new List<GameObject>();
 
     public float currentspeed = 0;
+    Coroutine speedCoroutine;
     //delegate void SpeedIncrease();
     //static SpeedIncrease speedIncrease = StartCoroutine();
 
@@ -49,6 +50,19 @@ public class RoadGenerator : Singleton<RoadGenerator>
             CreateNextRoad(Random.Range(0, Roads.Length));
         }
     }
+
+    //public IEnumerator SpeedIncrease()
+    //{
+    //    //currentspeed = 15f;
+    //    //MouseController.Instance.MoveSlowMouse();
+    //    //if (currentspeed > Maxspeed)
+    //    //{
+    //    //    currentspeed -= 5f;
+    //    //}
+    //    //yield return new WaitForSeconds(2);
+    //    //speedCoroutine = StartCoroutine(SpeedIncrease());
+
+    //}
 
     public void StopGame()
     {

@@ -65,6 +65,13 @@ public class MouseController : Singleton<MouseController>
 
     }
 
+    //public void MoveSlowMouse()
+    //{
+    //    //float time = Time.deltaTime * 5f;
+    //    Vector3 pos = new Vector3(0, 0, -0.2f);
+    //    _rb.AddForce(pos, ForceMode.Impulse);
+    //}
+
     private void JumpMouse()
     {
         isJumpingMouse = true;

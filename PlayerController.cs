@@ -16,6 +16,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Text RecordText;
     [SerializeField] private Button activeShotGunButton;
     [SerializeField] private GameObject[] Weapons;
+    [SerializeField] private float _moveSpeed=10f;
     Transform player;
 
     private Health _healthNotChange;
@@ -24,6 +25,7 @@ public class PlayerController : Singleton<PlayerController>
     Rigidbody rb;
     Coroutine movingCoroutine;
     Coroutine shieldCoroutine;
+    Coroutine speedCoroutineCat;
 
     float pointStart;
     float laneOffset;
@@ -34,6 +36,7 @@ public class PlayerController : Singleton<PlayerController>
     float realGravity = -9.8f;
     float intervalLight = 1f;
 
+    private bool isSpeedIncrease;
     private bool isMoving = false;
     private bool isImmortal;
 
@@ -44,6 +47,12 @@ public class PlayerController : Singleton<PlayerController>
     private void Awake()
     {
         _healthNotChange=GetComponent<Health>();
+    }
+
+    private void FixedUpdate()
+    {
+        if (isSpeedIncrease)
+            speedCoroutineCat = StartCoroutine(SpeedIncrease());
     }
 
     void Start()
@@ -100,6 +109,7 @@ public class PlayerController : Singleton<PlayerController>
         anim.SetTrigger("isIdle");
         anim.applyRootMotion = true;
         anim.enabled = false;
+        //isSpeedIncrease = false;
         counter = 0;
 
         transform.position = startGamePosition;
@@ -108,6 +118,7 @@ public class PlayerController : Singleton<PlayerController>
         ItemGeneratorFabric.Instance.StopThrowItem();
         //ShotGun.Instance.StopReloadCoroutine();
         LoseShotGun();
+        //StopCoroutine(speedCoroutineCat);
         Health.Instance.ChangeHealth(+100);
         HealthMouse.Instance.ChangeHealthMouse(+100);
         MouseController.Instance.ResetGame();
@@ -133,6 +144,13 @@ public class PlayerController : Singleton<PlayerController>
             Jump();
         }
 
+    }
+
+    public IEnumerator SpeedIncrease()
+    {
+        rb.velocity = new Vector3(0, 0, 2f);
+        yield return new WaitForSeconds(2);
+        isSpeedIncrease = false;
     }
 
     public void PickUpShotGun()
@@ -249,16 +267,7 @@ public class PlayerController : Singleton<PlayerController>
     //    _healthNotChange.enabled = true;
 
     //}
-    //public void SpeedIncrease()
-    //{
-    //    rb.velocity = new Vector3(0f, 0f, 5f);
-    //    //currentspeed += 5;
-    //    //if (currentspeed > Maxspeed)
-    //    //{
-    //    //    currentspeed -= 5;
-    //    //    StartCoroutine(SpeedIncrease());
-    //    //}
-    //}
+    
 
     private void OnTriggerEnter(Collider other)
     {
@@ -279,7 +288,8 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "BonusFish")
         {
-            //SpeedIncrease();
+             isSpeedIncrease = true;
+            //StartCoroutine(RoadGenerator.Instance.SpeedIncrease());
         }
         if (other.gameObject.tag == "BonusShield")
         {
