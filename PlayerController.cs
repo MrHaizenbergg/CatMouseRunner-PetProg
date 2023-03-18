@@ -16,7 +16,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Text RecordText;
     [SerializeField] private Button activeShotGunButton;
     [SerializeField] private GameObject[] Weapons;
-    [SerializeField] private float _moveSpeed=10f;
+    [SerializeField] private float _moveSpeed = 10f;
     Transform player;
 
     private Health _healthNotChange;
@@ -46,7 +46,7 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Awake()
     {
-        _healthNotChange=GetComponent<Health>();
+        _healthNotChange = GetComponent<Health>();
     }
 
     private void FixedUpdate()
@@ -87,7 +87,7 @@ public class PlayerController : Singleton<PlayerController>
     {
         anim.enabled = true;
         MouseController.Instance.StartGame();
-        
+
     }
 
     public void StartLevel()
@@ -155,11 +155,11 @@ public class PlayerController : Singleton<PlayerController>
 
     public void PickUpShotGun()
     {
-        anim.SetBool("isRiffleRun",true);
+        anim.SetBool("isRiffleRun", true);
         Weapons[0].SetActive(true);
         activeShotGunButton.gameObject.SetActive(true);
     }
-    
+
     public void LoseShotGun()
     {
         anim.SetBool("isRiffleRun", false);
@@ -189,6 +189,16 @@ public class PlayerController : Singleton<PlayerController>
         anim.applyRootMotion = true;
         MouseController.Instance.ResetGame();
         ItemGeneratorFabric.Instance.StopThrowItem();
+    }
+
+    public void CatTurnLeft()
+    {
+        rb.transform.rotation = Quaternion.Euler(0, -90, 0);
+    }
+    public void CatTurnRight()
+    {
+        //RoadGenerator.Instance.TurnLeft();
+        rb.transform.rotation = Quaternion.Euler(0, 90, 0);
     }
 
     void MoveHorizontal(float speed)
@@ -245,13 +255,13 @@ public class PlayerController : Singleton<PlayerController>
     private IEnumerator Slide()
     {
         anim.applyRootMotion = false;
-        col.center = new Vector3(0, 0.28f, 1.2f);
-        col.height = (0.58f);
+        col.center = new Vector3(0, 0.28f, 1.27f);
+        col.height = 0.58f;
         anim.SetBool("isFalling", true);
 
         yield return new WaitForSeconds(0.5f);
 
-        col.center = new Vector3(0, 0.67f, 1.2f);
+        col.center = new Vector3(0, 0.67f, 0f);
         col.height = 1.313049f;
         anim.applyRootMotion = true;
         anim.SetBool("isFalling", false);
@@ -267,7 +277,7 @@ public class PlayerController : Singleton<PlayerController>
     //    _healthNotChange.enabled = true;
 
     //}
-    
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -288,7 +298,7 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "BonusFish")
         {
-             isSpeedIncrease = true;
+            isSpeedIncrease = true;
             //StartCoroutine(RoadGenerator.Instance.SpeedIncrease());
         }
         if (other.gameObject.tag == "BonusShield")
@@ -302,6 +312,10 @@ public class PlayerController : Singleton<PlayerController>
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
         }
+        if (other.gameObject.tag == "CatTurnLeft")
+        {
+
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -312,7 +326,7 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
-     void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
