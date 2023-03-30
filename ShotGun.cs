@@ -9,7 +9,7 @@ public class ShotGun : Singleton<ShotGun>
     [SerializeField] private float _timeToReload = 3;
     [SerializeField] private GameObject[] _bullets;
     [SerializeField] private Transform _spawnBullet;
-    [SerializeField] private GameObject mouseObject;
+
     Coroutine liveBullet;
     Coroutine _reloadCoroutine;
     public float timeDestroy = 3f;

@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
     
     private void Update()
     {
-        cam.transform.position = new Vector3(transform.position.x, player.transform.position.y + 3.5f,
+        cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y,
             player.transform.position.z + (-3.9f));
         Vector3 rotateCam = transform.eulerAngles;
         rotateCam.y = 0f;

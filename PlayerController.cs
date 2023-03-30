@@ -15,6 +15,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Text CounterText;
     [SerializeField] private Text RecordText;
     [SerializeField] private Button activeShotGunButton;
+    [SerializeField] private Button activeThrowDynamit;
+    [SerializeField] private Button activeGreatWeapon;
     [SerializeField] private GameObject[] Weapons;
     [SerializeField] private float _moveSpeed = 10f;
     Transform player;
@@ -39,6 +41,7 @@ public class PlayerController : Singleton<PlayerController>
     private bool isSpeedIncrease;
     private bool isMoving = false;
     private bool isImmortal;
+    private bool _isGreatWeaponJump;
 
     private bool isJumping = false;
 
@@ -52,7 +55,7 @@ public class PlayerController : Singleton<PlayerController>
     private void FixedUpdate()
     {
         if (isSpeedIncrease)
-            speedCoroutineCat = StartCoroutine(SpeedIncrease());
+            StartCoroutine(SpeedIncrease());
     }
 
     void Start()
@@ -118,6 +121,8 @@ public class PlayerController : Singleton<PlayerController>
         ItemGeneratorFabric.Instance.StopThrowItem();
         //ShotGun.Instance.StopReloadCoroutine();
         LoseShotGun();
+        LoseDynamit();
+        LoseGreatWeapon();
         //StopCoroutine(speedCoroutineCat);
         Health.Instance.ChangeHealth(+100);
         HealthMouse.Instance.ChangeHealthMouse(+100);
@@ -159,12 +164,37 @@ public class PlayerController : Singleton<PlayerController>
         Weapons[0].SetActive(true);
         activeShotGunButton.gameObject.SetActive(true);
     }
-
     public void LoseShotGun()
     {
         anim.SetBool("isRiffleRun", false);
         Weapons[0].SetActive(false);
         activeShotGunButton.gameObject.SetActive(false);
+    }
+
+    public void PickUpDynamit()
+    {
+        Weapons[1].SetActive(true);
+        activeThrowDynamit.gameObject.SetActive(true);
+    }
+    public void LoseDynamit()
+    {
+        Weapons[1].SetActive(false);
+        activeThrowDynamit.gameObject.SetActive(false);
+    }
+
+    public void PickUpGreatWeapon()
+    {
+        anim.SetBool("isGreatWeaponRun", true);
+        _isGreatWeaponJump = true;
+        Weapons[2].SetActive(true);
+        activeGreatWeapon.gameObject.SetActive(true);
+    }
+    public void LoseGreatWeapon()
+    {
+        anim.SetBool("isGreatWeaponRun", false);
+        _isGreatWeaponJump = false;
+        Weapons[2].SetActive(false);
+        activeGreatWeapon.gameObject.SetActive(false);
     }
 
     public void VictoryCat()
@@ -175,7 +205,12 @@ public class PlayerController : Singleton<PlayerController>
     void Jump()
     {
         anim.applyRootMotion = false;
-        anim.SetBool("isJump", true);
+
+        if (_isGreatWeaponJump == true)
+            anim.SetTrigger("isGreatWeaponJump");
+        else
+            anim.SetBool("isJump", true);
+
         isJumping = true;
         rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
         Physics.gravity = new Vector3(0, jumpGravity, 0);
@@ -185,7 +220,11 @@ public class PlayerController : Singleton<PlayerController>
     public void Death()
     {
         RoadGenerator.Instance.StopGame();
-        anim.SetTrigger("isDying");
+        if (_isGreatWeaponJump==true)
+            anim.SetTrigger("isGreatWeaponDeath");
+        else
+            anim.SetTrigger("isDying");
+
         anim.applyRootMotion = true;
         MouseController.Instance.ResetGame();
         ItemGeneratorFabric.Instance.StopThrowItem();
@@ -242,24 +281,26 @@ public class PlayerController : Singleton<PlayerController>
         do
         {
             yield return new WaitForSeconds(0.02f);
+
             anim.SetBool("isJump", false);
+
         }
         while (rb.velocity.y != 0);
         {
             isJumping = false;
 
-            //Physics.gravity = new Vector3(0, realGravity, 0);
+            Physics.gravity = new Vector3(0, realGravity, 0);
         }
     }
 
     private IEnumerator Slide()
     {
         anim.applyRootMotion = false;
+        anim.SetBool("isFalling", true);
         col.center = new Vector3(0, 0.28f, 1.27f);
         col.height = 0.58f;
-        anim.SetBool("isFalling", true);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.8f);
 
         col.center = new Vector3(0, 0.67f, 0f);
         col.height = 1.313049f;
@@ -299,7 +340,6 @@ public class PlayerController : Singleton<PlayerController>
         if (other.gameObject.tag == "BonusFish")
         {
             isSpeedIncrease = true;
-            //StartCoroutine(RoadGenerator.Instance.SpeedIncrease());
         }
         if (other.gameObject.tag == "BonusShield")
         {
@@ -339,7 +379,9 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.tag == "Toaster")
         {
             //ItemGeneratorFabric.Instance.GetItem((ItemType)0);
+            LoseDynamit();
             LoseShotGun();
+            LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);
@@ -348,7 +390,9 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.tag == "Cubok1")
         {
             //ItemGeneratorFabric.Instance.GetItem((ItemType)1);
+            LoseDynamit();
             LoseShotGun();
+            LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-10);
             Destroy(collision.gameObject);
@@ -357,7 +401,9 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.tag == "Cubok2")
         {
             //ItemGeneratorFabric.Instance.GetItem((ItemType)2);
+            LoseDynamit();
             LoseShotGun();
+            LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);
@@ -366,16 +412,20 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.tag == "Telek")
         {
             // ItemGeneratorFabric.Instance.GetItem((ItemType)3);
+            LoseDynamit();
             LoseShotGun();
+            LoseGreatWeapon();
             anim.SetTrigger("isHit");
-            Health.Instance.ChangeHealth(-20);
+            Health.Instance.ChangeHealth(-40);
             Destroy(collision.gameObject);
             //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Plant")
         {
             //ItemGeneratorFabric.Instance.GetItem((ItemType)4);
+            LoseDynamit();
             LoseShotGun();
+            LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);

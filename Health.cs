@@ -16,7 +16,7 @@ public class Health : Singleton<Health>
 
         if (_currentHealth! > _maxHealth)
             _currentHealth = health;
-        
+
 
         if (_currentHealth <= 0)
         {
@@ -36,12 +36,5 @@ public class Health : Singleton<Health>
     private void Start()
     {
         _currentHealth = _maxHealth;
-    }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            ChangeHealth(-10);
-        }
     }
 }

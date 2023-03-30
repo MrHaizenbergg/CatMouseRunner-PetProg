@@ -38,11 +38,4 @@ public class HealthMouse : Singleton<HealthMouse>
     {
         _currentHealth = _maxHealth;
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            ChangeHealthMouse(-10);
-        }
-    }
 }

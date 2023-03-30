@@ -12,6 +12,8 @@ public class MouseController : Singleton<MouseController>
     public bool isJumpingMouse = false;
     private float lastVectorX;
 
+    private bool _isSpeedForMouseIncrease;
+
 
     Transform transformMouse;
     Transform transCat;
@@ -52,6 +54,19 @@ public class MouseController : Singleton<MouseController>
         transform.rotation = startGameRotation;
 
         StopAllCoroutines();
+    }
+
+    private void FixedUpdate()
+    {
+        if (_isSpeedForMouseIncrease)
+            StartCoroutine(SpeedForMouseIncrease());
+    }
+
+    public IEnumerator SpeedForMouseIncrease()
+    {
+        _rb.velocity = new Vector3(0, 0, 2f);
+        yield return new WaitForSeconds(2);
+        _isSpeedForMouseIncrease = false;
     }
 
     public void DeathMouse()
@@ -186,6 +201,10 @@ public class MouseController : Singleton<MouseController>
             StartCoroutine(MoveHorizontal((int)TrackPos.Right));
         if (other.gameObject.name == "ColSavePosition")
             StartCoroutine(MoveHorizontal(0));
+        if (other.gameObject.name == "Cheese")
+        {
+            _isSpeedForMouseIncrease = true;
+        }
     }
 
     void Start()
