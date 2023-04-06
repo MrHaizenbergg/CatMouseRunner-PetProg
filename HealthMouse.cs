@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class HealthMouse : Singleton<HealthMouse>
 {
-    [SerializeField] private int _maxHealth = 100;
+    [SerializeField] private int maxHealth = 100;
 
     private int _currentHealth;
     
@@ -15,7 +15,7 @@ public class HealthMouse : Singleton<HealthMouse>
     {
         _currentHealth += health;
 
-        if (_currentHealth !> _maxHealth)
+        if (_currentHealth !> maxHealth)
             _currentHealth = health;
 
         if (_currentHealth <= 0)
@@ -29,13 +29,13 @@ public class HealthMouse : Singleton<HealthMouse>
         }
         else
         {
-            float _currentHealthInPercent = (float)_currentHealth / _maxHealth;
+            float _currentHealthInPercent = (float)_currentHealth / maxHealth;
             HealtChangeMouse?.Invoke(_currentHealthInPercent);
         }
 
     }
     private void Start()
     {
-        _currentHealth = _maxHealth;
+        _currentHealth = maxHealth;
     }
 }

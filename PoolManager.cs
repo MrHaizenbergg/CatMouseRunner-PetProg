@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PoolManager : Singleton<PoolManager>
 {
-
     class Pool
     {
         private List<GameObject> inactive = new List<GameObject>();
@@ -80,8 +79,6 @@ public class PoolManager : Singleton<PoolManager>
         }
         else
         {
-            Debug.Log("DestroyObj");
-            //Instantiate(obj);
             Destroy(obj);
         }
     }

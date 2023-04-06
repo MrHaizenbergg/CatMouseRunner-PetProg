@@ -5,21 +5,21 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField] private Image _healthBarFill;
-    [SerializeField] Health _health;
+    [SerializeField] private Image healthBarFill;
+    [SerializeField] private Health health;
 
     private void OnHealthChanged(float valuePercent)
     {
-        _healthBarFill.fillAmount = valuePercent;
+        healthBarFill.fillAmount = valuePercent;
     }
     private void OnDestroy()
     {
-        _health.HealtChange -= OnHealthChanged;
+        health.HealthChange -= OnHealthChanged;
     }
 
     private void Awake()
     {
-        _health.HealtChange += OnHealthChanged;
+        health.HealthChange += OnHealthChanged;
     }
 
 }

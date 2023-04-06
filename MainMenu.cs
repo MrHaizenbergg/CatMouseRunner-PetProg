@@ -6,13 +6,6 @@ using UnityEngine.UI;
 
 public class MainMenu : Singleton<MainMenu>
 {
-    //[SerializeField] private Text coinsText;
-
-    private void Start()
-    {
-        //int coins = PlayerPrefs.GetInt("coins");
-        //coinsText.text = coins.ToString();
-    }
     public void PlayGame()
     {
         SceneManager.LoadScene(2);

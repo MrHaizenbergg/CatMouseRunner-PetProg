@@ -4,11 +4,12 @@ public class GreatWeapon : MonoBehaviour
 {
     [SerializeField] private float _kickForce = 10f;
     [SerializeField] private float _coolDownAttack = 5f;
+
     private bool _activeAttack;
     private bool _takeDamage;
     private float _nextAttackTime = 0f;
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (_activeAttack)
         {
@@ -33,7 +34,6 @@ public class GreatWeapon : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-
         if (other.gameObject.tag == "Mouse")
         {
             if (_takeDamage)
@@ -42,9 +42,7 @@ public class GreatWeapon : MonoBehaviour
             }
             _takeDamage = false;
         }
-
     }
-
 }
 
 

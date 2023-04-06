@@ -4,31 +4,30 @@ using UnityEngine;
 
 public class MouseController : Singleton<MouseController>
 {
-    [SerializeField] private int _speedX = 15;
-    [SerializeField] private int _jumpPower = 17;
+    [SerializeField] private int speedX = 15;
+    [SerializeField] private int jumpPower = 17;
+
     private Rigidbody _rb;
     private Animator _anim;
     private bool _isMoving = false;
     public bool isJumpingMouse = false;
-    private float lastVectorX;
 
     private bool _isSpeedForMouseIncrease;
 
-
-    Transform transformMouse;
-    Transform transCat;
+    private Transform _transCat;
     private Coroutine _movingCoroutine;
-    Coroutine randomLine;
+    private Coroutine _randomLine;
 
     Vector3 startGamePosition;
     Vector3 targetVelocity;
     Quaternion startGameRotation;
 
-    float pointStart;
-    float pointFinish;
-    float laneOffset = 2.5f;
-    float jumpGravity = -40;
-    float realGravity = -9.8f;
+    private float _lastVectorX;
+    private float _pointStart;
+    private float _pointFinish;
+    private float _laneOffset = 2.5f;
+    private float _jumpGravity = -40;
+    private float _realGravity = -9.8f;
 
     public void StartGame()
     {
@@ -37,14 +36,13 @@ public class MouseController : Singleton<MouseController>
         {
             StartCoroutine(RandomLine());
         }
-
     }
 
     public void ResetGame()
     {
         _rb.velocity = Vector3.zero;
-        pointStart = 0;
-        pointFinish = 0;
+        _pointStart = 0;
+        _pointFinish = 0;
 
         _anim.applyRootMotion = true;
         _anim.enabled = false;
@@ -75,9 +73,7 @@ public class MouseController : Singleton<MouseController>
         _anim.SetTrigger("isDyingMouse");
         _anim.applyRootMotion = true;
         ItemGeneratorFabric.Instance.StopThrowItem();
-        StopCoroutine(randomLine);
-        //StopAllCoroutines();
-
+        StopCoroutine(_randomLine);
     }
 
     //public void MoveSlowMouse()
@@ -93,14 +89,15 @@ public class MouseController : Singleton<MouseController>
 
         _anim.applyRootMotion = false;
         _anim.SetBool("isJump", true);
-        _rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
-        Physics.gravity = new Vector3(0, jumpGravity, 0);
+        _rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+
+        Physics.gravity = new Vector3(0, _jumpGravity, 0);
         StartCoroutine(StopJumpCoroutine());
     }
 
     public void LookToCat()
     {
-        Vector3 fromTo = transCat.transform.position - transform.position;
+        Vector3 fromTo = _transCat.transform.position - transform.position;
         Vector3 fromToXZ = new Vector3(fromTo.x, 0f, fromTo.z);
 
         transform.rotation = Quaternion.LookRotation(fromToXZ, Vector3.up);
@@ -130,17 +127,17 @@ public class MouseController : Singleton<MouseController>
             switch (i)
             {
                 case 1:
-                    if (pointFinish > -laneOffset)
+                    if (_pointFinish > -_laneOffset)
                         StartCoroutine(MoveHorizontal(-0.5f));
                     break;
                 case 2:
-                    if (pointFinish < laneOffset)
+                    if (_pointFinish < _laneOffset)
                         StartCoroutine(MoveHorizontal(0.5f));
                     break;
                 default:
-                    if (pointFinish < -laneOffset)
+                    if (_pointFinish < -_laneOffset)
                         StartCoroutine(MoveHorizontal(-0.5f));
-                    if (pointFinish > laneOffset)
+                    if (_pointFinish > _laneOffset)
                         StartCoroutine(MoveHorizontal(0.5f));
                     break;
 
@@ -148,14 +145,13 @@ public class MouseController : Singleton<MouseController>
         }
 
         yield return new WaitForSeconds(3);
-        randomLine = StartCoroutine(RandomLine());
+        _randomLine = StartCoroutine(RandomLine());
     }
     private IEnumerator MoveHorizontal(float speed)
     {
-
         _anim.applyRootMotion = false;
-        pointStart = pointFinish;
-        pointFinish += Mathf.Sign(speed) * laneOffset;
+        _pointStart = _pointFinish;
+        _pointFinish += Mathf.Sign(speed) * _laneOffset;
 
         if (_isMoving)
         {
@@ -170,17 +166,17 @@ public class MouseController : Singleton<MouseController>
     private IEnumerator MoveCoroutine(float VectorX)
     {
         _isMoving = true;
-        while (Mathf.Abs(pointStart - transform.position.x) < laneOffset)
+        while (Mathf.Abs(_pointStart - transform.position.x) < _laneOffset)
         {
             yield return new WaitForFixedUpdate();
 
-            _rb.velocity = new Vector3(VectorX * _speedX, _rb.velocity.y, 0);
-            lastVectorX = VectorX;
-            float x = Mathf.Clamp(transform.position.x, Mathf.Min(pointStart, pointFinish), Mathf.Max(pointStart, pointFinish));
+            _rb.velocity = new Vector3(VectorX * speedX, _rb.velocity.y, 0);
+            _lastVectorX = VectorX;
+            float x = Mathf.Clamp(transform.position.x, Mathf.Min(_pointStart, _pointFinish), Mathf.Max(_pointStart, _pointFinish));
             transform.position = new Vector3(x, transform.position.y, transform.position.z);
         }
         _rb.velocity = Vector3.zero;
-        transform.position = new Vector3(pointFinish, transform.position.y, transform.position.z);
+        transform.position = new Vector3(_pointFinish, transform.position.y, transform.position.z);
         if (transform.position.y > 1)
         {
             _rb.velocity = new Vector3(_rb.velocity.x, -10, _rb.velocity.z);
@@ -188,7 +184,7 @@ public class MouseController : Singleton<MouseController>
         _isMoving = false;
     }
 
-    public enum TrackPos { Left = -1, Center = 0, Right = 1 }
+    private enum TrackPos { Left = -1, Center = 0, Right = 1 }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -211,9 +207,8 @@ public class MouseController : Singleton<MouseController>
     {
         _rb = GetComponent<Rigidbody>();
         _anim = GetComponent<Animator>();
-        transCat = GetComponent<Transform>();
+        _transCat = GetComponent<Transform>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
-
     }
 }

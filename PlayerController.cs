@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,44 +19,48 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Button activeThrowDynamit;
     [SerializeField] private Button activeGreatWeapon;
     [SerializeField] private GameObject[] Weapons;
-    [SerializeField] private float _moveSpeed = 10f;
-    Transform player;
+    [SerializeField] GameObject[] weaponsForBack;
 
     private Health _healthNotChange;
-    private CapsuleCollider col;
+    private CapsuleCollider _col;
     public Animator anim;
-    Rigidbody rb;
+    private Rigidbody rb;
+
     Coroutine movingCoroutine;
     Coroutine shieldCoroutine;
-    Coroutine speedCoroutineCat;
 
-    float pointStart;
-    float laneOffset;
-    float pointFinish;
-    float lastVectorX;
-    float jumpPower = 14;
-    float jumpGravity = -40;
-    float realGravity = -9.8f;
-    float intervalLight = 1f;
+    private float _pointStart;
+    private float _laneOffset;
+    private float _pointFinish;
+    private float _lastVectorX;
 
-    private bool isSpeedIncrease;
-    private bool isMoving = false;
-    private bool isImmortal;
+    private float _jumpPower = 14;
+    private float _jumpGravity = -40;
+    private float _realGravity = -9.8f;
+
+    private bool _isSpeedIncrease;
+    private bool _isMoving = false;
+    private bool _isImmortal;
     private bool _isGreatWeaponJump;
 
-    private bool isJumping = false;
+    private bool _isJumping = false;
 
     public static int counter;
+    private int currentIndex;
+    public event Action<int> ChangeIndexWeapon;
 
     private void Awake()
     {
         _healthNotChange = GetComponent<Health>();
+        WeaponSwitcher(1);
     }
 
     private void FixedUpdate()
     {
-        if (isSpeedIncrease)
+        if (_isSpeedIncrease)
             StartCoroutine(SpeedIncrease());
+        if (_isImmortal)
+            StartCoroutine(ShieldBonus());
     }
 
     void Start()
@@ -74,15 +79,15 @@ public class PlayerController : Singleton<PlayerController>
             RecordText.text = recordScore.ToString();
         }
 
-        laneOffset = MapGenerator.Instance.laneOffset;
+        _laneOffset = MapGenerator.Instance.laneOffset;
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
+        _col = GetComponent<CapsuleCollider>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
         SwipeManager.instance.MoveEvent += MovePlayer;
         counter = PlayerPrefs.GetInt("coins");
-        isImmortal = false;
+        //_isImmortal = false;
 
     }
 
@@ -95,7 +100,6 @@ public class PlayerController : Singleton<PlayerController>
 
     public void StartLevel()
     {
-        //StartCoroutine(ItemGeneratorFabric.Instance.ThrowItem());
         ItemGeneratorFabric.Instance.StartThrowItem();
         RoadGenerator.Instance.StartLevel();
     }
@@ -107,23 +111,23 @@ public class PlayerController : Singleton<PlayerController>
     public void ResetGame()
     {
         rb.velocity = Vector3.zero;
-        pointStart = 0;
-        pointFinish = 0;
+        _pointStart = 0;
+        _pointFinish = 0;
         anim.SetTrigger("isIdle");
         anim.applyRootMotion = true;
         anim.enabled = false;
-        //isSpeedIncrease = false;
         counter = 0;
+        _isImmortal = false;
 
         transform.position = startGamePosition;
         transform.rotation = startGameRotation;
 
         ItemGeneratorFabric.Instance.StopThrowItem();
-        //ShotGun.Instance.StopReloadCoroutine();
+
         LoseShotGun();
         LoseDynamit();
         LoseGreatWeapon();
-        //StopCoroutine(speedCoroutineCat);
+
         Health.Instance.ChangeHealth(+100);
         HealthMouse.Instance.ChangeHealthMouse(+100);
         MouseController.Instance.ResetGame();
@@ -132,19 +136,19 @@ public class PlayerController : Singleton<PlayerController>
 
     void MovePlayer(bool[] swipes)
     {
-        if (swipes[(int)SwipeManager.Direction.Down] && isJumping == false)
+        if (swipes[(int)SwipeManager.Direction.Down] && _isJumping == false)
         {
             StartCoroutine(Slide());
         }
-        if (swipes[(int)SwipeManager.Direction.Left] && pointFinish > -laneOffset)
+        if (swipes[(int)SwipeManager.Direction.Left] && _pointFinish > -_laneOffset)
         {
             MoveHorizontal(-laneChangeSpeed);
         }
-        if (swipes[(int)SwipeManager.Direction.Right] && pointFinish < laneOffset)
+        if (swipes[(int)SwipeManager.Direction.Right] && _pointFinish < _laneOffset)
         {
             MoveHorizontal(laneChangeSpeed);
         }
-        if (swipes[(int)SwipeManager.Direction.Up] && isJumping == false)
+        if (swipes[(int)SwipeManager.Direction.Up] && _isJumping == false)
         {
             Jump();
         }
@@ -155,12 +159,124 @@ public class PlayerController : Singleton<PlayerController>
     {
         rb.velocity = new Vector3(0, 0, 2f);
         yield return new WaitForSeconds(2);
-        isSpeedIncrease = false;
+        _isSpeedIncrease = false;
+    }
+
+    public void WeaponSwitcher(int currentWeapon)
+    {
+        currentIndex += currentWeapon;
+
+        if (currentIndex < 0) currentIndex = Weapons.Length - 1;
+        else if (currentIndex > Weapons.Length - 1) currentIndex = 0;
+
+
+        ChangeIndexWeapon?.Invoke(currentIndex);
+        Debug.Log(currentIndex);
+
+        if (Weapons[0].activeInHierarchy && currentIndex == 0)
+        {
+            Debug.Log("Case 0");
+            PickUpShotGun();
+            ChangeIndexWeapon?.Invoke(0);
+            if (Weapons[0].activeInHierarchy)
+            {
+                LoseDynamit();
+                LoseGreatWeapon();
+            }
+        }
+         else if (Weapons[1].activeInHierarchy && currentIndex == 1)
+        {
+            Debug.Log("Case 1");
+            PickUpDynamit();
+            ChangeIndexWeapon?.Invoke(1);
+            if (Weapons[1].activeInHierarchy)
+            {
+                LoseShotGun();
+                LoseGreatWeapon();
+            }
+        }
+         else if (Weapons[2].activeInHierarchy && currentIndex == 2)
+        {
+            Debug.Log("Case 2");
+            PickUpGreatWeapon();
+            ChangeIndexWeapon?.Invoke(2);
+            if (Weapons[2].activeInHierarchy)
+            {
+                LoseDynamit();
+                LoseShotGun();
+            }
+        }
+
+        //switch (currentIndex)
+        //{
+        //    case 0:
+        //        if (Weapons[0].activeSelf)
+        //        {
+        //            Debug.Log("Case 0");
+        //            activeThrowDynamit.gameObject.SetActive(false);
+        //            anim.SetBool("isGreatWeaponRun", false);
+        //            activeGreatWeapon.gameObject.SetActive(false);
+        //            PickUpShotGun();
+        //        }
+        //        else
+        //        {
+        //            currentIndex = +1;
+        //            goto case 1;
+        //        }
+        //        break;
+        //    case 1:
+        //        if (Weapons[1].activeSelf)
+        //        {
+        //            Debug.Log("Case 1");
+        //            anim.SetBool("isRiffleRun", false);
+        //            activeShotGunButton.gameObject.SetActive(false);
+        //            anim.SetBool("isGreatWeaponRun", false);
+        //            activeGreatWeapon.gameObject.SetActive(false);
+        //            PickUpDynamit();
+        //        }
+        //        else
+        //        {
+        //            currentIndex = +1;
+        //            goto case 2;
+        //        }
+        //        break;
+        //    case 2:
+        //        if (Weapons[2].activeSelf)
+        //        {
+        //            Debug.Log("Case 2");
+        //            anim.SetBool("isRiffleRun", false);
+        //            activeShotGunButton.gameObject.SetActive(false);
+        //            activeThrowDynamit.gameObject.SetActive(false);
+        //            PickUpGreatWeapon();
+        //        }
+        //        else
+        //        {
+        //            currentIndex = +1;
+        //            goto case 0;
+        //        }
+        //        break;
+        //    default:
+        //        break;
+
     }
 
     public void PickUpShotGun()
     {
+        activeThrowDynamit.gameObject.SetActive(false);
+        anim.SetBool("isGreatWeaponRun", false);
+        activeGreatWeapon.gameObject.SetActive(false);
+
         anim.SetBool("isRiffleRun", true);
+
+        if (Weapons[1].activeInHierarchy)
+        {
+            weaponsForBack[1].SetActive(true);
+        }
+        if (Weapons[2].activeInHierarchy)
+        {
+            weaponsForBack[2].SetActive(true);
+        }
+
         Weapons[0].SetActive(true);
         activeShotGunButton.gameObject.SetActive(true);
     }
@@ -173,6 +289,19 @@ public class PlayerController : Singleton<PlayerController>
 
     public void PickUpDynamit()
     {
+        anim.SetBool("isRiffleRun", false);
+        activeShotGunButton.gameObject.SetActive(false);
+        anim.SetBool("isGreatWeaponRun", false);
+        activeGreatWeapon.gameObject.SetActive(false);
+
+        if (Weapons[0].activeInHierarchy)
+        {
+            weaponsForBack[0].SetActive(true);
+        }
+        if (Weapons[2].activeInHierarchy)
+        {
+            weaponsForBack[2].SetActive(true);
+        }
         Weapons[1].SetActive(true);
         activeThrowDynamit.gameObject.SetActive(true);
     }
@@ -184,8 +313,25 @@ public class PlayerController : Singleton<PlayerController>
 
     public void PickUpGreatWeapon()
     {
+        anim.SetBool("isRiffleRun", false);
+        activeShotGunButton.gameObject.SetActive(false);
+        activeThrowDynamit.gameObject.SetActive(false);
+
         anim.SetBool("isGreatWeaponRun", true);
         _isGreatWeaponJump = true;
+
+
+        if (Weapons[0].activeInHierarchy)
+        {
+            weaponsForBack[0].SetActive(true);
+            //Weapons[0].SetActive(false);
+        }
+        if (Weapons[1].activeInHierarchy)
+        {
+            //Weapons[1].SetActive(false);
+            weaponsForBack[1].SetActive(true);
+        }
+
         Weapons[2].SetActive(true);
         activeGreatWeapon.gameObject.SetActive(true);
     }
@@ -211,16 +357,16 @@ public class PlayerController : Singleton<PlayerController>
         else
             anim.SetBool("isJump", true);
 
-        isJumping = true;
-        rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
-        Physics.gravity = new Vector3(0, jumpGravity, 0);
+        _isJumping = true;
+        rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
+        Physics.gravity = new Vector3(0, _jumpGravity, 0);
         StartCoroutine(StopJumpCoroutine());
     }
 
     public void Death()
     {
         RoadGenerator.Instance.StopGame();
-        if (_isGreatWeaponJump==true)
+        if (_isGreatWeaponJump == true)
             anim.SetTrigger("isGreatWeaponDeath");
         else
             anim.SetTrigger("isDying");
@@ -236,44 +382,43 @@ public class PlayerController : Singleton<PlayerController>
     }
     public void CatTurnRight()
     {
-        //RoadGenerator.Instance.TurnLeft();
         rb.transform.rotation = Quaternion.Euler(0, 90, 0);
     }
 
     void MoveHorizontal(float speed)
     {
         anim.applyRootMotion = false;
-        pointStart = pointFinish;
-        pointFinish += Mathf.Sign(speed) * laneOffset;
+        _pointStart = _pointFinish;
+        _pointFinish += Mathf.Sign(speed) * _laneOffset;
 
-        if (isMoving)
+        if (_isMoving)
         {
             StopCoroutine(movingCoroutine);
-            isMoving = false;
+            _isMoving = false;
         }
         movingCoroutine = StartCoroutine(MoveCoroutine(speed));
     }
 
     private IEnumerator MoveCoroutine(float VectorX)
     {
-        isMoving = true;
-        while (Mathf.Abs(pointStart - transform.position.x) < laneOffset)
+        _isMoving = true;
+        while (Mathf.Abs(_pointStart - transform.position.x) < _laneOffset)
         {
             yield return new WaitForFixedUpdate();
 
             rb.velocity = new Vector3(VectorX, rb.velocity.y, 0);
-            lastVectorX = VectorX;
-            float x = Mathf.Clamp(transform.position.x, Mathf.Min(pointStart, pointFinish), Mathf.Max(pointStart, pointFinish));
+            _lastVectorX = VectorX;
+            float x = Mathf.Clamp(transform.position.x, Mathf.Min(_pointStart, _pointFinish), Mathf.Max(_pointStart, _pointFinish));
             transform.position = new Vector3(x, transform.position.y, transform.position.z);
         }
         rb.velocity = Vector3.zero;
-        transform.position = new Vector3(pointFinish, transform.position.y, transform.position.z);
+        transform.position = new Vector3(_pointFinish, transform.position.y, transform.position.z);
         if (transform.position.y > 1)
         {
 
             rb.velocity = new Vector3(rb.velocity.x, -10, rb.velocity.z);
         }
-        isMoving = false;
+        _isMoving = false;
     }
 
     private IEnumerator StopJumpCoroutine()
@@ -287,9 +432,9 @@ public class PlayerController : Singleton<PlayerController>
         }
         while (rb.velocity.y != 0);
         {
-            isJumping = false;
+            _isJumping = false;
 
-            Physics.gravity = new Vector3(0, realGravity, 0);
+            Physics.gravity = new Vector3(0, _realGravity, 0);
         }
     }
 
@@ -297,27 +442,27 @@ public class PlayerController : Singleton<PlayerController>
     {
         anim.applyRootMotion = false;
         anim.SetBool("isFalling", true);
-        col.center = new Vector3(0, 0.28f, 1.27f);
-        col.height = 0.58f;
+        _col.center = new Vector3(0, 0.28f, 1.27f);
+        _col.height = 0.58f;
 
         yield return new WaitForSeconds(0.8f);
 
-        col.center = new Vector3(0, 0.67f, 0f);
-        col.height = 1.313049f;
+        _col.center = new Vector3(0, 0.67f, 0f);
+        _col.height = 1.313049f;
         anim.applyRootMotion = true;
         anim.SetBool("isFalling", false);
 
     }
 
-    //private IEnumerator ShieldBonus()
-    //{
-    //    isImmortal = true;
-    //    _healthNotChange.enabled = false;
-    //    yield return new WaitForSeconds(5);
-    //    isImmortal = false;
-    //    _healthNotChange.enabled = true;
+    private IEnumerator ShieldBonus()
+    {
+        Health.Instance.ImmortalCatTrue();
+        yield return new WaitForSeconds(5);
+        Health.Instance.ImmortalCatFalse();
+        _isImmortal = false;
+        _healthNotChange.enabled = true;
 
-    //}
+    }
 
 
     private void OnTriggerEnter(Collider other)
@@ -328,7 +473,7 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "Lose")
         {
-            if (isImmortal)
+            if (_isImmortal)
             {
                 transform.parent.gameObject.SetActive(true);
             }
@@ -339,11 +484,11 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (other.gameObject.tag == "BonusFish")
         {
-            isSpeedIncrease = true;
+            _isSpeedIncrease = true;
         }
         if (other.gameObject.tag == "BonusShield")
         {
-            //StartCoroutine(ShieldBonus());
+            _isImmortal = true;
         }
         if (other.gameObject.tag == "Coin")
         {
@@ -351,10 +496,6 @@ public class PlayerController : Singleton<PlayerController>
             int lastRunscore = int.Parse(CounterText.text.ToString());
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
-        }
-        if (other.gameObject.tag == "CatTurnLeft")
-        {
-
         }
     }
 
@@ -374,73 +515,52 @@ public class PlayerController : Singleton<PlayerController>
         }
         if (collision.gameObject.tag == "NotLose")
         {
-            MoveHorizontal(-lastVectorX);
+            MoveHorizontal(-_lastVectorX);
         }
         if (collision.gameObject.tag == "Toaster")
         {
-            //ItemGeneratorFabric.Instance.GetItem((ItemType)0);
             LoseDynamit();
             LoseShotGun();
             LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);
-            //StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok1")
         {
-            //ItemGeneratorFabric.Instance.GetItem((ItemType)1);
             LoseDynamit();
             LoseShotGun();
             LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-10);
             Destroy(collision.gameObject);
-            //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Cubok2")
         {
-            //ItemGeneratorFabric.Instance.GetItem((ItemType)2);
             LoseDynamit();
             LoseShotGun();
             LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);
-            //shieldCoroutine=StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Telek")
         {
-            // ItemGeneratorFabric.Instance.GetItem((ItemType)3);
             LoseDynamit();
             LoseShotGun();
             LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-40);
             Destroy(collision.gameObject);
-            //shieldCoroutine = StartCoroutine(ShieldBonus());
         }
         if (collision.gameObject.tag == "Plant")
         {
-            //ItemGeneratorFabric.Instance.GetItem((ItemType)4);
             LoseDynamit();
             LoseShotGun();
             LoseGreatWeapon();
             anim.SetTrigger("isHit");
             Health.Instance.ChangeHealth(-20);
             Destroy(collision.gameObject);
-            //shieldCoroutine = StartCoroutine(ShieldBonus());
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.tag == "RampPlane")
-        {
-            if (rb.velocity.x == 0 && isJumping == false)
-            {
-                //rb.velocity = new Vector3(rb.velocity.x,-10,rb.velocity.z);
-            }
         }
     }
 }

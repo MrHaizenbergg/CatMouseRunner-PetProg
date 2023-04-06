@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class PickUpShotGun : MonoBehaviour
 {
-    float rotationSpeed = 100;
+    private float _rotationSpeed = 100;
 
     void Start()
     {
-        rotationSpeed += Random.Range(0, rotationSpeed / 4.0f);
+        _rotationSpeed += Random.Range(0, _rotationSpeed / 4.0f);
     }
 
     void Update()
     {
-        transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
+        transform.Rotate(0, _rotationSpeed * Time.deltaTime, 0);
     }
 
     private void OnTriggerEnter(Collider other)

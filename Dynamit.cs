@@ -13,16 +13,13 @@ public class Dynamit : Singleton<Dynamit>
     [SerializeField] private float forceExplosion;
     [SerializeField] private Animator _animCat;
     
-
-
-    Coroutine _spawnDynamitCoroutine;
+    private Coroutine _spawnDynamitCoroutine;
     bool pressThrowDynamit;
     public float spread;
 
     public void PressThrowDynamit()
     {
         pressThrowDynamit = true;
-        
     }
 
     private void FixedUpdate()
@@ -31,7 +28,6 @@ public class Dynamit : Singleton<Dynamit>
         {
             _spawnDynamitCoroutine = StartCoroutine(ThrowDynamit());
             pressThrowDynamit = false;
-
         }
     }
 
@@ -55,30 +51,14 @@ public class Dynamit : Singleton<Dynamit>
         float randomZ = Random.Range(10f, 100f);
 
         Vector3 dirWithSpread = pos + new Vector3(x, y, 0);
-        //go.transform.forward = dirWithSpread.normalized;
 
         go.GetComponentInChildren<Rigidbody>().AddForce(dirWithSpread * _forceThrow, ForceMode.Impulse);
         go.GetComponentInChildren<Rigidbody>().AddTorque(randomX, randomY, randomZ);
-        //go.GetComponentInChildren<Rigidbody>().AddForce(pos * _forceThrow, ForceMode.Impulse);
+      
         yield return new WaitForSeconds(1.3f);
 
-        //Collider[] overlapColliders = Physics.OverlapSphere(go.transform.position, radius);
-
-        //for (int i = 0; i < overlapColliders.Length; i++)
-        //{
-        //    Rigidbody rb = overlapColliders[i].attachedRigidbody;
-        //    if (rb != null)
-        //    {
-        //        rb.AddExplosionForce(forceExplosion, transform.position, radius);
-        //        HealthMouse.Instance.ChangeHealthMouse(-5);
-        //        Health.Instance.ChangeHealth(-5);
-        //    }
-
-        //}
         Explosion.Instance.ExplosionDyn();
         
-
-        Debug.Log("Explose");
         yield return new WaitForSeconds(0.2f);
         go.SetActive(false);
         Destroy(go);

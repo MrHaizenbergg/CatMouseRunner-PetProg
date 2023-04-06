@@ -14,7 +14,6 @@ public class Explosion : Singleton<Explosion>
     {
         Collider[] overlapColliders = Physics.OverlapSphere(transform.position, radius);
 
-
         for (int i = 0; i < overlapColliders.Length; i++)
         {
            
@@ -23,15 +22,11 @@ public class Explosion : Singleton<Explosion>
             if (rb != null)
             {
                 rb.AddExplosionForce(forceExplosion, transform.position, radius);
-                Debug.Log(rb.name);
                 if (rb == rbMouse)
                 {
                     HealthMouse.Instance.ChangeHealthMouse(-30);
                 }
-
-                //Health.Instance.ChangeHealth(-5);
             }
-            
         }
         exploseParticle.Play();
     }

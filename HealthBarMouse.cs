@@ -3,21 +3,21 @@ using UnityEngine;
 
 public class HealthBarMouse : MonoBehaviour
 {
-    [SerializeField] private Image _healthBarFillMouse;
-    [SerializeField] HealthMouse _healthMouse;
+    [SerializeField] private Image healthBarFillMouse;
+    [SerializeField] HealthMouse healthMouse;
 
     private void OnHealthChangedMouse(float valuePercent)
     {
-        _healthBarFillMouse.fillAmount = valuePercent;
+        healthBarFillMouse.fillAmount = valuePercent;
     }
     private void OnDestroy()
     {
-        _healthMouse.HealtChangeMouse -= OnHealthChangedMouse;
+        healthMouse.HealtChangeMouse -= OnHealthChangedMouse;
     }
 
     private void Awake()
     {
-        _healthMouse.HealtChangeMouse += OnHealthChangedMouse;
+        healthMouse.HealtChangeMouse += OnHealthChangedMouse;
     }
 
 }

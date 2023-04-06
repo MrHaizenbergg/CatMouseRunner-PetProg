@@ -6,12 +6,14 @@ using UnityEngine;
 public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
 {
     [SerializeField] private GameObject[] items;
-    [SerializeField] private Animator _anim;
-    [SerializeField] private float _forceThrow = 9f;
-    [SerializeField] private int _coolDownThrow = 8;
+    [SerializeField] private Animator anim;
+    [SerializeField] private float forceThrow;
+    [SerializeField] private int coolDownThrow = 8;
+    [SerializeField] private float spread;
+
     Coroutine throwItemCoroutine;
+
     bool pressItemGenerator;
-    public float spread;
 
     public List<GameObject> _inactiveItems = new List<GameObject>();
 
@@ -23,34 +25,26 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
         PoolManager.Instance.Preload(items[3], 1);
         PoolManager.Instance.Preload(items[4], 1);
 
-        //_inactiveItems.Add(items[0]);
-        //_inactiveItems.Add(items[1]);
-        //_inactiveItems.Add(items[2]);
-        //_inactiveItems.Add(items[3]);
-        //_inactiveItems.Add(items[4]);
     }
 
-    public void ActiveItems()
-    {
-        for (int i = 0; i < _inactiveItems.Count; i++)
-        {
-            _inactiveItems[i].SetActive(true);
-        }
-    }
-
+    //public void ActiveItems()
+    //{
+    //    for (int i = 0; i < _inactiveItems.Count; i++)
+    //    {
+    //        _inactiveItems[i].SetActive(false);
+    //    }
+    //}
 
     private IEnumerator ThrowItem()
     {
         int RandomNumber = Random.Range(0, items.Length);
-        float RandomThrowForce = Random.Range(7f, _forceThrow);
-        _anim.SetTrigger("isTurnBack");
-        //ActiveItems();
+        float RandomThrowForce = Random.Range(6f, forceThrow);
+        anim.SetTrigger("isTurnBack");
+    
         yield return new WaitForSeconds(1);
         GameObject go = PoolManager.Instance.Spawn((items[RandomNumber]), transform.position, Quaternion.identity);
-        //_inactiveItems.Add(go);
-        //go.SetActive(true);
-
-        Vector3 pos = new Vector3(0f, 0.9f, -0.6f);
+        
+        Vector3 pos = new Vector3(0f, 0.5f, -1f);
 
         float x = Random.Range(-spread, spread);
         float y = Random.Range(-spread, spread);
@@ -69,15 +63,16 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
         yield return new WaitForSeconds(1.5f);
         //PoolManager.Instance.Despawn(_inactiveItems[0]);
         //_inactiveItems.RemoveAt(0);
-        go.SetActive(false);
+        //go.SetActive(false);
+        _inactiveItems.Add(go);
         yield return new WaitForFixedUpdate();
         Destroy(go);
-        yield return new WaitForSeconds(_coolDownThrow);
+        yield return new WaitForSeconds(coolDownThrow);
         if (MouseController.Instance.isJumpingMouse == false)
             throwItemCoroutine = StartCoroutine(ThrowItem());
         else
         {
-            yield return new WaitForSeconds(_coolDownThrow);
+            yield return new WaitForSeconds(coolDownThrow);
             if (MouseController.Instance.isJumpingMouse == false)
                 throwItemCoroutine = StartCoroutine(ThrowItem());
         }
@@ -93,11 +88,9 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     public void StartThrowItem()
     {
         pressItemGenerator = true;
-        //StartCoroutine(ThrowItem());
     }
     public void StopThrowItem()
     {
-        //StopCoroutine(throwItemCoroutine);
         StopAllCoroutines();
     }
 

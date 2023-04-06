@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using UnityEngine;
 
-
 public class RoadGenerator : Singleton<RoadGenerator>
 {
     [SerializeField] private GameObject[] Roads;
@@ -15,20 +14,15 @@ public class RoadGenerator : Singleton<RoadGenerator>
     private List<GameObject> roads = new List<GameObject>();
 
     public float currentspeed = 0;
-    //delegate void SpeedIncrease();
-    //static SpeedIncrease speedIncrease = StartCoroutine();
 
     private void Awake()
     {
         PoolManager.Instance.Preload(Roads[0], 3);
         PoolManager.Instance.Preload(Roads[1], 3);
-        //PoolManager.Instance.Preload(Roads[2], 3);
-        //PoolManager.Instance.Preload(Roads[3], 3);
     }
 
     void Start()
     {
-        //StartCoroutine(SpeedIncrease());
         ResetLevel();
     }
 
@@ -70,13 +64,11 @@ public class RoadGenerator : Singleton<RoadGenerator>
         roads.Add(go);
     }
 
-
     public void StartLevel()
     {
         currentspeed = Maxspeed;
         SwipeManager.instance.enabled = true;
     }
-
 
     public void ResetLevel()
     {
@@ -96,6 +88,4 @@ public class RoadGenerator : Singleton<RoadGenerator>
         SwipeManager.instance.enabled = false;
         MapGenerator.Instance.ResetMaps();
     }
-
-
 }
