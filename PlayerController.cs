@@ -20,12 +20,13 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Button activeGreatWeapon;
     [SerializeField] private GameObject[] Weapons;
     [SerializeField] GameObject[] weaponsForBack;
-    [SerializeField] GameObject[] weaponsPool;
+    [SerializeField] public GameObject[] weaponsPool;
 
     private Health _healthNotChange;
     private CapsuleCollider _col;
     public Animator anim;
     private Rigidbody rb;
+    private StateMachineWeapon _smWeapon;
 
     Coroutine movingCoroutine;
     Coroutine shieldCoroutine;
@@ -66,6 +67,11 @@ public class PlayerController : Singleton<PlayerController>
 
     void Start()
     {
+        _smWeapon = new StateMachineWeapon();
+        _smWeapon.Initialize(new EmptyState());
+
+
+
         int lastRunScore = PlayerPrefs.GetInt("lastRunscore");
         int recordScore = PlayerPrefs.GetInt("recordScore");
 
@@ -163,65 +169,76 @@ public class PlayerController : Singleton<PlayerController>
         _isSpeedIncrease = false;
     }
 
-    //public void PressWeaponSwitcher(int index)
-    //{
-    //    currentIndex += index;
-
-    //    if (currentIndex < 0) currentIndex = Weapons.Length - 1;
-    //    else if (currentIndex > Weapons.Length - 1) currentIndex = 0;
-
-    //    if (weaponsPool[0].activeInHierarchy==false | weaponsPool[1].activeInHierarchy==false |
-    //        weaponsPool[2].activeInHierarchy==false) WeaponSwitcher(currentIndex);
-
-    //}
-
-    public void WeaponSwitcher(int currentWeapon)
+    public void PressWeaponSwitcher(int index)
     {
-        
-        currentIndex += currentWeapon;
+        currentIndex += index;
 
         if (currentIndex < 0) currentIndex = Weapons.Length - 1;
         else if (currentIndex > Weapons.Length - 1) currentIndex = 0;
 
-        //if(Weapons!=null)
-
-        //ChangeIndexWeapon?.Invoke(currentIndex);
-        Debug.Log(currentIndex);
-
-        if (weaponsPool[0].activeInHierarchy && currentIndex==0)
+        if (Weapons[0] != null && currentIndex == 0)
         {
-            Debug.Log("Case 0");
-            PickUpShotGun();
-            //ChangeIndexWeapon?.Invoke(0);
-            //if (Weapons[0].activeInHierarchy)
-            //{
-            //    LoseDynamit();
-            //    LoseGreatWeapon();
-            //}
+            _smWeapon.ChangeState(new ShotGunState());
         }
-        else if (weaponsPool[1].activeInHierarchy && currentIndex == 1)
+        if (Weapons[1] != null && currentIndex == 1)
         {
-            Debug.Log("Case 1");
-            PickUpDynamit();
-            //ChangeIndexWeapon?.Invoke(1);
-            //if (Weapons[1].activeInHierarchy)
-            //{
-            //    LoseShotGun();
-            //    LoseGreatWeapon();
-            //}
-        }
-        else if (weaponsPool[2].activeInHierarchy && currentIndex == 2)
-        {
-            Debug.Log("Case 2");
-            PickUpGreatWeapon();
+            _smWeapon.ChangeState(new DynamiteState());
 
-            //ChangeIndexWeapon?.Invoke(2);
-            //if (Weapons[2].activeInHierarchy)
-            //{
-            //    LoseDynamit();
-            //    LoseShotGun();
-            //}
         }
+        if (Weapons[2] != null && currentIndex == 2)
+        {
+            _smWeapon.ChangeState(new GreatWeaponState());
+        }
+
+    }
+
+    public void WeaponSwitcher(int currentWeapon)
+    {
+
+        //currentIndex += currentWeapon;
+
+        //if (currentIndex < 0) currentIndex = Weapons.Length - 1;
+        //else if (currentIndex > Weapons.Length - 1) currentIndex = 0;
+
+        ////if(Weapons!=null)
+
+        ////ChangeIndexWeapon?.Invoke(currentIndex);
+        //Debug.Log(currentIndex);
+
+        //if (weaponsPool[0].activeInHierarchy && currentIndex==0)
+        //{
+        //    Debug.Log("Case 0");
+        //    PickUpShotGun();
+        //    //ChangeIndexWeapon?.Invoke(0);
+        //    //if (Weapons[0].activeInHierarchy)
+        //    //{
+        //    //    LoseDynamit();
+        //    //    LoseGreatWeapon();
+        //    //}
+        //}
+        //else if (weaponsPool[1].activeInHierarchy && currentIndex == 1)
+        //{
+        //    Debug.Log("Case 1");
+        //    PickUpDynamit();
+        //    //ChangeIndexWeapon?.Invoke(1);
+        //    //if (Weapons[1].activeInHierarchy)
+        //    //{
+        //    //    LoseShotGun();
+        //    //    LoseGreatWeapon();
+        //    //}
+        //}
+        //else if (weaponsPool[2].activeInHierarchy && currentIndex == 2)
+        //{
+        //    Debug.Log("Case 2");
+        //    PickUpGreatWeapon();
+
+        //    //ChangeIndexWeapon?.Invoke(2);
+        //    //if (Weapons[2].activeInHierarchy)
+        //    //{
+        //    //    LoseDynamit();
+        //    //    LoseShotGun();
+        //    //}
+        //}
 
         //switch (currentIndex)
         //{
@@ -273,17 +290,21 @@ public class PlayerController : Singleton<PlayerController>
 
         anim.SetBool("isRiffleRun", true);
 
-        //if (Weapons[1].activeInHierarchy)
-        //{
-        //    weaponsForBack[1].SetActive(true);
-        //}
-        //if (Weapons[2].activeInHierarchy)
-        //{
-        //    weaponsForBack[2].SetActive(true);
-        //}
+        if (weaponsPool[1].activeInHierarchy)
+        {
+            weaponsForBack[1].SetActive(true);
+            Weapons[1].SetActive(false);
+        }
+        if (weaponsPool[2].activeInHierarchy)
+        {
+            weaponsForBack[2].SetActive(true);
+            Weapons[2].SetActive(false);
+        }
 
         Weapons[0] = weaponsPool[0];
         Weapons[0].SetActive(true);
+        if (weaponsPool[0].activeInHierarchy)
+            weaponsForBack[0].SetActive(false);
         activeShotGunButton.gameObject.SetActive(true);
     }
     public void LoseShotGun()
@@ -303,16 +324,21 @@ public class PlayerController : Singleton<PlayerController>
         anim.SetBool("isGreatWeaponRun", false);
         activeGreatWeapon.gameObject.SetActive(false);
 
-        //if (Weapons[0].activeInHierarchy)
-        //{
-        //    weaponsForBack[0].SetActive(true);
-        //}
-        //if (Weapons[2].activeInHierarchy)
-        //{
-        //    weaponsForBack[2].SetActive(true);
-        //}
+        if (weaponsPool[0].activeInHierarchy)
+        {
+            weaponsForBack[0].SetActive(true);
+            Weapons[0].SetActive(false);
+        }
+        if (weaponsPool[2].activeInHierarchy)
+        {
+            weaponsForBack[2].SetActive(true);
+            Weapons[2].SetActive(false);
+        }
+
         Weapons[1] = weaponsPool[1];
         Weapons[1].SetActive(true);
+        if (Weapons[1].activeInHierarchy)
+            weaponsForBack[1].SetActive(false);
         activeThrowDynamit.gameObject.SetActive(true);
     }
     public void LoseDynamit()
@@ -334,19 +360,21 @@ public class PlayerController : Singleton<PlayerController>
         _isGreatWeaponJump = true;
 
 
-        //if (Weapons[0].activeInHierarchy)
-        //{
-        //    weaponsForBack[0].SetActive(true);
-        //    //Weapons[0].SetActive(false);
-        //}
-        //if (Weapons[1].activeInHierarchy)
-        //{
-        //    //Weapons[1].SetActive(false);
-        //    weaponsForBack[1].SetActive(true);
-        //}
+        if (weaponsPool[0].activeInHierarchy)
+        {
+            weaponsForBack[0].SetActive(true);
+            Weapons[0].SetActive(false);
+        }
+        if (weaponsPool[1].activeInHierarchy)
+        {
+            Weapons[1].SetActive(false);
+            weaponsForBack[1].SetActive(true);
+        }
 
         Weapons[2] = weaponsPool[2];
         Weapons[2].SetActive(true);
+        if (Weapons[2].activeInHierarchy)
+            weaponsForBack[2].SetActive(false);
         activeGreatWeapon.gameObject.SetActive(true);
     }
     public void LoseGreatWeapon()
@@ -357,6 +385,7 @@ public class PlayerController : Singleton<PlayerController>
             Weapons[2].SetActive(false);
 
         Weapons[2] = null;
+        weaponsForBack[2].SetActive(false);
         activeGreatWeapon.gameObject.SetActive(false);
     }
 
@@ -514,6 +543,7 @@ public class PlayerController : Singleton<PlayerController>
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
         }
+
     }
 
     private void OnTriggerExit(Collider other)

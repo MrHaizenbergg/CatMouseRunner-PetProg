@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PickUpShotGun : MonoBehaviour
+public class PickUpShotGun : Singleton<PickUpShotGun>
 {
     private float _rotationSpeed = 100;
 

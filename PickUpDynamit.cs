@@ -3,6 +3,7 @@ using UnityEngine;
 public class PickUpDynamit : MonoBehaviour
 {
     private float _rotationSpeed = 100;
+    
 
     void Start()
     {
@@ -20,6 +21,7 @@ public class PickUpDynamit : MonoBehaviour
         {
             transform.parent.gameObject.SetActive(false);
             PlayerController.Instance.PickUpDynamit();
+           
         }
 
     }
