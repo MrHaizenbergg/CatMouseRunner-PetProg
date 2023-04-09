@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PoolManager : Singleton<PoolManager>
 {
-
     class Pool
     {
         private List<GameObject> inactive = new List<GameObject>();
@@ -16,19 +15,19 @@ public class PoolManager : Singleton<PoolManager>
             this.prefab = prefab;
         }
 
-        public GameObject Spawn(Vector3 pos,Quaternion rot)
+        public GameObject Spawn(Vector3 pos, Quaternion rot)
         {
             GameObject obj;
-            if(inactive.Count == 0)
+            if (inactive.Count == 0)
             {
-                obj=Instantiate(prefab,pos,rot);
-                obj.name=prefab.name;
+                obj = Instantiate(prefab, pos, rot);
+                obj.name = prefab.name;
                 obj.transform.SetParent(Instance.transform);
             }
             else
             {
-                obj=inactive[inactive.Count-1];
-                inactive.RemoveAt(inactive.Count-1);
+                obj = inactive[inactive.Count - 1];
+                inactive.RemoveAt(inactive.Count - 1);
             }
             obj.transform.position = pos;
             obj.transform.rotation = rot;

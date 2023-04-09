@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Coin : MonoBehaviour
+public class PickUpDynamit : MonoBehaviour
 {
     private float _rotationSpeed = 100;
-
+    
     void Start()
     {
         _rotationSpeed += Random.Range(0, _rotationSpeed / 4.0f);
@@ -13,7 +11,7 @@ public class Coin : MonoBehaviour
 
     void Update()
     {
-        transform.Rotate(0, 0, _rotationSpeed * Time.deltaTime);
+        transform.Rotate(0, _rotationSpeed * Time.deltaTime, 0);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -21,7 +19,10 @@ public class Coin : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             transform.parent.gameObject.SetActive(false);
+            PlayerController.Instance.PickUpDynamit();
+            PlayerController.Instance.PressWeaponSwitcher(1);
+           
         }
-        
+
     }
 }

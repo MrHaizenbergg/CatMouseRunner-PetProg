@@ -120,6 +120,36 @@ public class MapGenerator : Singleton<MapGenerator>
         return result;
     }
 
+    GameObject MakeMapLeft()
+    {
+        GameObject result = new GameObject("MapLeft");
+        Quaternion quaternion =result.transform.rotation = Quaternion.Euler(0,90,0);
+        result.transform.rotation.Equals(quaternion);
+        result.transform.SetParent(activemaps[activemaps.Count - 1].transform);
+
+        MapItem item = new MapItem();
+        for (int i = 0; i < itemCountInMap; i++)
+        {
+            item.SetValues(null, TrackPos.Center, CoinStyle.Line);
+
+            if (i == 2) { item.SetValues(RampPrefab, TrackPos.Left, CoinStyle.Ramp); }
+            else if (i == 3) { item.SetValues(ObstacleBottomPrefab, TrackPos.Right, CoinStyle.Jump); }
+            else if (i == 4) { item.SetValues(ObstacleBottomPrefab, TrackPos.Right, CoinStyle.Jump); }
+
+            Vector3 obstaclePos = new Vector3((int)item.trackPos * laneOffset, 0, i * itemSpace);
+            
+            CreateCoins(item.coinStyle, obstaclePos, result);
+
+
+            if (item.obstacle != null)
+            {
+                GameObject go = Instantiate(item.obstacle, obstaclePos, Quaternion.identity);
+                go.transform.SetParent(result.transform);
+            }
+        }
+        return result;
+    }
+
     void CreateCoins(CoinStyle style, Vector3 pos,GameObject parentObject)
     {
         Vector3 coinPos = Vector3.zero;

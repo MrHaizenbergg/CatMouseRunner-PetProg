@@ -4,38 +4,45 @@ using UnityEngine;
 
 public class MouseController : Singleton<MouseController>
 {
-    [SerializeField] private int _speedX = 15;
-    [SerializeField] private int _jumpPower = 17;
+    [SerializeField] private int speedX = 15;
+    [SerializeField] private int jumpPower = 17;
+
     private Rigidbody _rb;
     private Animator _anim;
     private bool _isMoving = false;
-    private bool isJumping = false;
-    private float lastVectorX;
+    public bool isJumpingMouse = false;
 
-    Transform transformMouse;
+    private bool _isSpeedForMouseIncrease;
+
+    private Transform _transCat;
     private Coroutine _movingCoroutine;
+    private Coroutine _randomLine;
 
     Vector3 startGamePosition;
     Vector3 targetVelocity;
     Quaternion startGameRotation;
 
-    float pointStart;
-    float pointFinish;
-    float laneOffset = 2.5f;
-    float jumpGravity = -40;
-    float realGravity = -9.8f;
+    private float _lastVectorX;
+    private float _pointStart;
+    private float _pointFinish;
+    private float _laneOffset = 2.5f;
+    private float _jumpGravity = -40;
+    private float _realGravity = -9.8f;
 
     public void StartGame()
     {
         _anim.enabled = true;
-        StartCoroutine(RandomLine());
+        if (isJumpingMouse == false)
+        {
+            StartCoroutine(RandomLine());
+        }
     }
 
     public void ResetGame()
     {
         _rb.velocity = Vector3.zero;
-        pointStart = 0;
-        pointFinish = 0;
+        _pointStart = 0;
+        _pointFinish = 0;
 
         _anim.applyRootMotion = true;
         _anim.enabled = false;
@@ -47,15 +54,48 @@ public class MouseController : Singleton<MouseController>
         StopAllCoroutines();
     }
 
+    private void FixedUpdate()
+    {
+        if (_isSpeedForMouseIncrease)
+            StartCoroutine(SpeedForMouseIncrease());
+    }
+
+    public IEnumerator SpeedForMouseIncrease()
+    {
+        _rb.velocity = new Vector3(0, 0, 2f);
+        yield return new WaitForSeconds(2);
+        _isSpeedForMouseIncrease = false;
+    }
+
+    public void DeathMouse()
+    {
+        RoadGenerator.Instance.StopGame();
+        _anim.SetTrigger("isDyingMouse");
+        _anim.applyRootMotion = true;
+        ItemGeneratorFabric.Instance.StopThrowItem();
+        StopCoroutine(_randomLine);
+    }
+
     private void JumpMouse()
     {
+        isJumpingMouse = true;
+
         _anim.applyRootMotion = false;
         _anim.SetBool("isJump", true);
-        isJumping = true;
-        _rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
-        Physics.gravity = new Vector3(0, jumpGravity, 0);
+        _rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+
+        Physics.gravity = new Vector3(0, _jumpGravity, 0);
         StartCoroutine(StopJumpCoroutine());
     }
+
+    public void LookToCat()
+    {
+        Vector3 fromTo = _transCat.transform.position - transform.position;
+        Vector3 fromToXZ = new Vector3(fromTo.x, 0f, fromTo.z);
+
+        transform.rotation = Quaternion.LookRotation(fromToXZ, Vector3.up);
+    }
+
 
     private IEnumerator StopJumpCoroutine()
     {
@@ -66,7 +106,7 @@ public class MouseController : Singleton<MouseController>
         }
         while (_rb.velocity.y != 0);
         {
-            isJumping = false;
+            isJumpingMouse = false;
 
             //Physics.gravity = new Vector3(0, realGravity, 0);
         }
@@ -74,21 +114,37 @@ public class MouseController : Singleton<MouseController>
 
     private IEnumerator RandomLine()
     {
-        if (pointFinish > -laneOffset)
-            StartCoroutine(MoveHorizontal(((int)TrackPos.Left)));
-        else if (pointFinish < laneOffset)
-            StartCoroutine(MoveHorizontal(((int)TrackPos.Right)));
-        if (pointFinish < laneOffset && pointFinish > -laneOffset)
-            StartCoroutine(MoveHorizontal(Random.Range((int)TrackPos.Left, (int)TrackPos.Right)));
+        if (isJumpingMouse == false)
+        {
+            int i = Random.Range(1, 3);
+            switch (i)
+            {
+                case 1:
+                    if (_pointFinish > -_laneOffset)
+                        StartCoroutine(MoveHorizontal(-0.5f));
+                    break;
+                case 2:
+                    if (_pointFinish < _laneOffset)
+                        StartCoroutine(MoveHorizontal(0.5f));
+                    break;
+                default:
+                    if (_pointFinish < -_laneOffset)
+                        StartCoroutine(MoveHorizontal(-0.5f));
+                    if (_pointFinish > _laneOffset)
+                        StartCoroutine(MoveHorizontal(0.5f));
+                    break;
+            }
+        }
+
         yield return new WaitForSeconds(3);
-        StartCoroutine(RandomLine());
+        _randomLine = StartCoroutine(RandomLine());
     }
+
     private IEnumerator MoveHorizontal(float speed)
     {
-
         _anim.applyRootMotion = false;
-        pointStart = pointFinish;
-        pointFinish += Mathf.Sign(speed) * laneOffset;
+        _pointStart = _pointFinish;
+        _pointFinish += Mathf.Sign(speed) * _laneOffset;
 
         if (_isMoving)
         {
@@ -102,17 +158,19 @@ public class MouseController : Singleton<MouseController>
     private IEnumerator MoveCoroutine(float VectorX)
     {
         _isMoving = true;
-        while (Mathf.Abs(pointStart - transform.position.x) < laneOffset)
+        while (Mathf.Abs(_pointStart - transform.position.x) < _laneOffset)
         {
             yield return new WaitForFixedUpdate();
 
-            _rb.velocity = new Vector3(VectorX * _speedX, _rb.velocity.y, 0);
-            lastVectorX = VectorX;
-            float x = Mathf.Clamp(transform.position.x, Mathf.Min(pointStart, pointFinish), Mathf.Max(pointStart, pointFinish));
+            _rb.velocity = new Vector3(VectorX * speedX, _rb.velocity.y, 0);
+            _lastVectorX = VectorX;
+            float x = Mathf.Clamp(transform.position.x, Mathf.Min(_pointStart, _pointFinish), Mathf.Max(_pointStart, _pointFinish));
             transform.position = new Vector3(x, transform.position.y, transform.position.z);
         }
+
         _rb.velocity = Vector3.zero;
-        transform.position = new Vector3(pointFinish, transform.position.y, transform.position.z);
+        transform.position = new Vector3(_pointFinish, transform.position.y, transform.position.z);
+
         if (transform.position.y > 1)
         {
             _rb.velocity = new Vector3(_rb.velocity.x, -10, _rb.velocity.z);
@@ -120,63 +178,31 @@ public class MouseController : Singleton<MouseController>
         _isMoving = false;
     }
 
-    enum TrackPos { Left = -1, Center = 0, Right = 1 }
-
-    struct TakeLine
-    {
-        public void SetValues(TrackPos trackPos)
-        { this.trackPos = trackPos; }
-        public TrackPos trackPos;
-    }
+    private enum TrackPos { Left = -1, Center = 0, Right = 1 }
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (pointFinish > -laneOffset)
-        //    StartCoroutine(MoveHorizontal((int)TrackPos.Left));
-        //if (pointFinish < laneOffset)
-        //    StartCoroutine(MoveHorizontal((int)TrackPos.Right));
         if (other.gameObject.tag == "Obstacle3")
-            if (isJumping == false)
+            if (isJumpingMouse == false)
                 JumpMouse();
         if (other.gameObject.name == "ColMouseRunLeft")
             StartCoroutine(MoveHorizontal((int)TrackPos.Left));
         if (other.gameObject.name == "ColMouseRunRight")
             StartCoroutine(MoveHorizontal((int)TrackPos.Right));
         if (other.gameObject.name == "ColSavePosition")
-            StartCoroutine(MoveHorizontal((int)TrackPos.Center));
+            StartCoroutine(MoveHorizontal(0));
+        if (other.gameObject.name == "Cheese")
+        {
+            _isSpeedForMouseIncrease = true;
+        }
     }
 
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    switch (other.gameObject.name)
-    //    {
-    //        case "ColMouseRunLeft":
-    //            if (pointFinish < -laneOffset)
-    //                StartCoroutine(MoveHorizontal((int)TrackPos.Left));
-    //            break;
-    //        case "ColMouseRunRight":
-    //            if (pointFinish < laneOffset)
-    //                StartCoroutine(MoveHorizontal((int)TrackPos.Right));
-    //            break;
-    //        case "ColSavePosition":
-    //            StartCoroutine(MoveHorizontal((int)TrackPos.Center));
-    //            break;
-
-    //    }
-    //    if (other.gameObject.tag == "Obstacle3")
-    //            JumpMouse();
-    //}
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
         _anim = GetComponent<Animator>();
+        _transCat = GetComponent<Transform>();
         startGamePosition = transform.position;
         startGameRotation = transform.rotation;
-    }
-
-
-    void Update()
-    {
-
     }
 }
