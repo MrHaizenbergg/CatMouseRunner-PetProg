@@ -22,8 +22,7 @@ public class PickUpGreatWeapon : MonoBehaviour
         {
             transform.parent.gameObject.SetActive(false);
             PlayerController.Instance.PickUpGreatWeapon();
-
-
+            PlayerController.Instance.PressWeaponSwitcher(2);
         }
     }
 }

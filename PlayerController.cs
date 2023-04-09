@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,16 +12,15 @@ public class PlayerController : Singleton<PlayerController>
     Vector3 targetVelocity;
     Quaternion startGameRotation;
 
-
     [SerializeField] private float laneChangeSpeed = 15;
     [SerializeField] private Text CounterText;
     [SerializeField] private Text RecordText;
     [SerializeField] private Button activeShotGunButton;
     [SerializeField] private Button activeThrowDynamit;
     [SerializeField] private Button activeGreatWeapon;
-    [SerializeField] private GameObject[] Weapons;
+    [SerializeField] public GameObject[] Weapons;
     [SerializeField] GameObject[] weaponsForBack;
-    [SerializeField] public GameObject[] weaponsPool;
+    [SerializeField] private GameObject[] weaponsPool;
 
     private Health _healthNotChange;
     private CapsuleCollider _col;
@@ -47,14 +47,16 @@ public class PlayerController : Singleton<PlayerController>
 
     private bool _isJumping = false;
 
-    public static int counter;
+    public static int counter { get; private set; }
+
     private int currentIndex;
+
     public event Action<int> ChangeIndexWeapon;
 
     private void Awake()
     {
         _healthNotChange = GetComponent<Health>();
-        WeaponSwitcher(0);
+        PressWeaponSwitcher(0);
     }
 
     private void FixedUpdate()
@@ -69,8 +71,6 @@ public class PlayerController : Singleton<PlayerController>
     {
         _smWeapon = new StateMachineWeapon();
         _smWeapon.Initialize(new EmptyState());
-
-
 
         int lastRunScore = PlayerPrefs.GetInt("lastRunscore");
         int recordScore = PlayerPrefs.GetInt("recordScore");
@@ -94,15 +94,12 @@ public class PlayerController : Singleton<PlayerController>
         startGameRotation = transform.rotation;
         SwipeManager.instance.MoveEvent += MovePlayer;
         counter = PlayerPrefs.GetInt("coins");
-        //_isImmortal = false;
-
     }
 
     public void StartGame()
     {
         anim.enabled = true;
         MouseController.Instance.StartGame();
-
     }
 
     public void StartLevel()
@@ -183,105 +180,13 @@ public class PlayerController : Singleton<PlayerController>
         if (Weapons[1] != null && currentIndex == 1)
         {
             _smWeapon.ChangeState(new DynamiteState());
-
         }
         if (Weapons[2] != null && currentIndex == 2)
         {
             _smWeapon.ChangeState(new GreatWeaponState());
         }
-
     }
 
-    public void WeaponSwitcher(int currentWeapon)
-    {
-
-        //currentIndex += currentWeapon;
-
-        //if (currentIndex < 0) currentIndex = Weapons.Length - 1;
-        //else if (currentIndex > Weapons.Length - 1) currentIndex = 0;
-
-        ////if(Weapons!=null)
-
-        ////ChangeIndexWeapon?.Invoke(currentIndex);
-        //Debug.Log(currentIndex);
-
-        //if (weaponsPool[0].activeInHierarchy && currentIndex==0)
-        //{
-        //    Debug.Log("Case 0");
-        //    PickUpShotGun();
-        //    //ChangeIndexWeapon?.Invoke(0);
-        //    //if (Weapons[0].activeInHierarchy)
-        //    //{
-        //    //    LoseDynamit();
-        //    //    LoseGreatWeapon();
-        //    //}
-        //}
-        //else if (weaponsPool[1].activeInHierarchy && currentIndex == 1)
-        //{
-        //    Debug.Log("Case 1");
-        //    PickUpDynamit();
-        //    //ChangeIndexWeapon?.Invoke(1);
-        //    //if (Weapons[1].activeInHierarchy)
-        //    //{
-        //    //    LoseShotGun();
-        //    //    LoseGreatWeapon();
-        //    //}
-        //}
-        //else if (weaponsPool[2].activeInHierarchy && currentIndex == 2)
-        //{
-        //    Debug.Log("Case 2");
-        //    PickUpGreatWeapon();
-
-        //    //ChangeIndexWeapon?.Invoke(2);
-        //    //if (Weapons[2].activeInHierarchy)
-        //    //{
-        //    //    LoseDynamit();
-        //    //    LoseShotGun();
-        //    //}
-        //}
-
-        //switch (currentIndex)
-        //{
-        //    case 0:
-        //        if (Weapons[0] != null)
-        //        {
-        //            Debug.Log("Case 0");
-        //            PickUpShotGun();
-        //        }
-        //        else if (Weapons[1].activeInHierarchy)
-        //        {
-        //            goto case 0;
-        //        }
-        //        else
-        //            goto case 1;
-        //        break;
-        //    case 1:
-        //        if (Weapons[1]!=null)
-        //        {
-        //            Debug.Log("Case 1");
-        //            PickUpDynamit();
-        //        }
-        //        else if (Weapons[2].activeInHierarchy)
-        //            goto case 0;
-        //        else
-        //            goto case 2;
-        //        break;
-        //    case 2:
-        //        if (Weapons[2] != null)
-        //        {
-        //            Debug.Log("Case 2");
-        //            PickUpGreatWeapon();
-        //        }
-        //        else if (Weapons[0].activeInHierarchy)
-        //            goto case 1;
-        //        else
-        //            goto case 0;
-        //        break;
-        //    default:
-        //        break;
-
-        //}
-    }
     public void PickUpShotGun()
     {
         activeThrowDynamit.gameObject.SetActive(false);
@@ -497,7 +402,6 @@ public class PlayerController : Singleton<PlayerController>
         _col.height = 1.313049f;
         anim.applyRootMotion = true;
         anim.SetBool("isFalling", false);
-
     }
 
     private IEnumerator ShieldBonus()
@@ -507,9 +411,7 @@ public class PlayerController : Singleton<PlayerController>
         Health.Instance.ImmortalCatFalse();
         _isImmortal = false;
         _healthNotChange.enabled = true;
-
     }
-
 
     private void OnTriggerEnter(Collider other)
     {

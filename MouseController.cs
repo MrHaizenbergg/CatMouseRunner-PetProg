@@ -76,13 +76,6 @@ public class MouseController : Singleton<MouseController>
         StopCoroutine(_randomLine);
     }
 
-    //public void MoveSlowMouse()
-    //{
-    //    //float time = Time.deltaTime * 5f;
-    //    Vector3 pos = new Vector3(0, 0, -0.2f);
-    //    _rb.AddForce(pos, ForceMode.Impulse);
-    //}
-
     private void JumpMouse()
     {
         isJumpingMouse = true;
@@ -140,13 +133,13 @@ public class MouseController : Singleton<MouseController>
                     if (_pointFinish > _laneOffset)
                         StartCoroutine(MoveHorizontal(0.5f));
                     break;
-
             }
         }
 
         yield return new WaitForSeconds(3);
         _randomLine = StartCoroutine(RandomLine());
     }
+
     private IEnumerator MoveHorizontal(float speed)
     {
         _anim.applyRootMotion = false;
@@ -162,7 +155,6 @@ public class MouseController : Singleton<MouseController>
         _movingCoroutine = StartCoroutine(MoveCoroutine(speed));
     }
 
-
     private IEnumerator MoveCoroutine(float VectorX)
     {
         _isMoving = true;
@@ -175,8 +167,10 @@ public class MouseController : Singleton<MouseController>
             float x = Mathf.Clamp(transform.position.x, Mathf.Min(_pointStart, _pointFinish), Mathf.Max(_pointStart, _pointFinish));
             transform.position = new Vector3(x, transform.position.y, transform.position.z);
         }
+
         _rb.velocity = Vector3.zero;
         transform.position = new Vector3(_pointFinish, transform.position.y, transform.position.z);
+
         if (transform.position.y > 1)
         {
             _rb.velocity = new Vector3(_rb.velocity.x, -10, _rb.velocity.z);

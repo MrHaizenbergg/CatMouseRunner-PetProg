@@ -20,6 +20,7 @@ public class PickUpShotGun : Singleton<PickUpShotGun>
         {
             transform.parent.gameObject.SetActive(false);
             PlayerController.Instance.PickUpShotGun();
+            PlayerController.Instance.PressWeaponSwitcher(0);
         }
 
     }

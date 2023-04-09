@@ -8,7 +8,6 @@ public class Dynamit : Singleton<Dynamit>
     [SerializeField] GameObject DynamitObj;
     [SerializeField] GameObject deleteDynInHands;
     [SerializeField] private Transform _spawnDynamit;
-    //[SerializeField] private GameObject _mouseTarget;
     [SerializeField] private float radius;
     [SerializeField] private float forceExplosion;
     [SerializeField] private Animator _animCat;
@@ -63,6 +62,5 @@ public class Dynamit : Singleton<Dynamit>
         go.SetActive(false);
         Destroy(go);
         PlayerController.Instance.LoseDynamit();
-
     }
 }
