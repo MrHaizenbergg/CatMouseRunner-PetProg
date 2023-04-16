@@ -10,6 +10,7 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     [SerializeField] private float forceThrow;
     [SerializeField] private int coolDownThrow = 8;
     [SerializeField] private float spread;
+    [SerializeField] private MouseController mouseController;
 
     Coroutine throwItemCoroutine;
 
@@ -68,15 +69,16 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
         yield return new WaitForFixedUpdate();
         Destroy(go);
         yield return new WaitForSeconds(coolDownThrow);
-        if (MouseController.Instance.isJumpingMouse == false)
+        //if (MouseController.Instance.isJumpingMouse == false)
+        if(mouseController.isJumpingMouse==false)
             throwItemCoroutine = StartCoroutine(ThrowItem());
         else
         {
             yield return new WaitForSeconds(coolDownThrow);
-            if (MouseController.Instance.isJumpingMouse == false)
+            //if (MouseController.Instance.isJumpingMouse == false)
+            if(mouseController.isJumpingMouse==false)
                 throwItemCoroutine = StartCoroutine(ThrowItem());
         }
-
     }
 
     private void FixedUpdate()
@@ -93,24 +95,4 @@ public class ItemGeneratorFabric : Singleton<ItemGeneratorFabric>
     {
         StopAllCoroutines();
     }
-
-
-    //public ItemStats GetItem(ItemType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case ItemType.Toaster:
-    //            return new ItemStats(strengthKick: 10, speedKick: 10, damageKick: 10);
-    //        case ItemType.Cubok1:
-    //            return new ItemStats(strengthKick: 10, speedKick: 10,damageKick: 10);
-    //        case ItemType.Cubok2:
-    //            return new ItemStats(strengthKick: 10, speedKick: 10, damageKick: 10);
-    //        case ItemType.Telek:
-    //            return new ItemStats(strengthKick: 10, speedKick: 10, damageKick: 10);
-    //        case ItemType.Plant:
-    //            return new ItemStats(strengthKick: 10, speedKick: 10, damageKick: 10);
-    //    }
-    //    return null;
-    //}
-
 }

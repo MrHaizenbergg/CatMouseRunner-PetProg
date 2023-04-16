@@ -21,6 +21,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] public GameObject[] Weapons;
     [SerializeField] GameObject[] weaponsForBack;
     [SerializeField] private GameObject[] weaponsPool;
+    [SerializeField] private MouseController mouseController;
 
     private Health _healthNotChange;
     private CapsuleCollider _col;
@@ -99,7 +100,7 @@ public class PlayerController : Singleton<PlayerController>
     public void StartGame()
     {
         anim.enabled = true;
-        MouseController.Instance.StartGame();
+        mouseController.StartGame();
     }
 
     public void StartLevel()
@@ -134,7 +135,7 @@ public class PlayerController : Singleton<PlayerController>
 
         Health.Instance.ChangeHealth(+100);
         HealthMouse.Instance.ChangeHealthMouse(+100);
-        MouseController.Instance.ResetGame();
+        mouseController.ResetGame();
         RoadGenerator.Instance.ResetLevel();
     }
 
@@ -156,7 +157,6 @@ public class PlayerController : Singleton<PlayerController>
         {
             Jump();
         }
-
     }
 
     public IEnumerator SpeedIncrease()
@@ -323,7 +323,7 @@ public class PlayerController : Singleton<PlayerController>
             anim.SetTrigger("isDying");
 
         anim.applyRootMotion = true;
-        MouseController.Instance.ResetGame();
+        mouseController.StartGame();
         ItemGeneratorFabric.Instance.StopThrowItem();
     }
 
@@ -445,7 +445,6 @@ public class PlayerController : Singleton<PlayerController>
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
         }
-
     }
 
     private void OnTriggerExit(Collider other)
