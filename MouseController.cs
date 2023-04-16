@@ -75,10 +75,6 @@ public class MouseController : MonoBehaviour
             MouseCreator.Instance.CreateMouseStandard().StartGame();
             _isCreateMouse = false;
         }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartGame();
-        }
     }
 
     public void CreateMinionMouseStandard()
@@ -121,7 +117,6 @@ public class MouseController : MonoBehaviour
 
         transform.rotation = Quaternion.LookRotation(fromToXZ, Vector3.up);
     }
-
 
     private IEnumerator StopJumpCoroutine()
     {

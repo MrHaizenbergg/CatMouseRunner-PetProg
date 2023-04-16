@@ -24,15 +24,3 @@ public class MouseCreator : Singleton<MouseCreator>
         _mouseFactory.CreateMouseModify();
     }
 }
-
-    //private MouseController _mouseController;
-
-    //private void Start()
-    //{
-    //    _mouseController = GetComponent<MouseController>();
-    //}
-
-    //public MouseCreator(MouseController mouseController)
-    //{
-    //    _mouseController = mouseController;
-    //}

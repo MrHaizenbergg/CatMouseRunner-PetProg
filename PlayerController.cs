@@ -323,7 +323,6 @@ public class PlayerController : Singleton<PlayerController>
             anim.SetTrigger("isDying");
 
         anim.applyRootMotion = true;
-        //MouseController.Instance.ResetGame();
         mouseController.StartGame();
         ItemGeneratorFabric.Instance.StopThrowItem();
     }
@@ -446,7 +445,6 @@ public class PlayerController : Singleton<PlayerController>
             PlayerPrefs.SetInt("lastRunscore", lastRunscore);
             CounterText.text = counter.ToString();
         }
-
     }
 
     private void OnTriggerExit(Collider other)
