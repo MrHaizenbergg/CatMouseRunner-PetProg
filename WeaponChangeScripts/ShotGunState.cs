@@ -17,5 +17,6 @@ public class ShotGunState : WeaponState
     public override void Exit()
     {
         base.Exit();
+
     }
 }

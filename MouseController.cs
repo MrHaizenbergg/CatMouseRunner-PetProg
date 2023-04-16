@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MouseController : Singleton<MouseController>
+public class MouseController : MonoBehaviour
 {
     [SerializeField] private int speedX = 15;
     [SerializeField] private int jumpPower = 17;
@@ -13,6 +13,7 @@ public class MouseController : Singleton<MouseController>
     public bool isJumpingMouse = false;
 
     private bool _isSpeedForMouseIncrease;
+    private bool _isCreateMouse;
 
     private Transform _transCat;
     private Coroutine _movingCoroutine;
@@ -29,7 +30,7 @@ public class MouseController : Singleton<MouseController>
     private float _jumpGravity = -40;
     private float _realGravity = -9.8f;
 
-    public void StartGame()
+    public  virtual void StartGame()
     {
         _anim.enabled = true;
         if (isJumpingMouse == false)
@@ -37,8 +38,16 @@ public class MouseController : Singleton<MouseController>
             StartCoroutine(RandomLine());
         }
     }
+    private protected virtual void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+        _anim = GetComponent<Animator>();
+        _transCat = GetComponent<Transform>();
+        startGamePosition = transform.position;
+        startGameRotation = transform.rotation;
+    }
 
-    public void ResetGame()
+    public virtual void ResetGame()
     {
         _rb.velocity = Vector3.zero;
         _pointStart = 0;
@@ -53,14 +62,31 @@ public class MouseController : Singleton<MouseController>
 
         StopAllCoroutines();
     }
-
-    private void FixedUpdate()
+    private  void FixedUpdate()
     {
         if (_isSpeedForMouseIncrease)
             StartCoroutine(SpeedForMouseIncrease());
     }
 
-    public IEnumerator SpeedForMouseIncrease()
+   public void Update()
+    {
+        if (_isCreateMouse)
+        {
+            MouseCreator.Instance.CreateMouseStandard().StartGame();
+            _isCreateMouse = false;
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartGame();
+        }
+    }
+
+    public void CreateMinionMouseStandard()
+    {
+        _isCreateMouse = true;
+    }
+
+    private IEnumerator SpeedForMouseIncrease()
     {
         _rb.velocity = new Vector3(0, 0, 2f);
         yield return new WaitForSeconds(2);
@@ -112,7 +138,7 @@ public class MouseController : Singleton<MouseController>
         }
     }
 
-    private IEnumerator RandomLine()
+    private protected virtual IEnumerator RandomLine()
     {
         if (isJumpingMouse == false)
         {
@@ -140,7 +166,7 @@ public class MouseController : Singleton<MouseController>
         _randomLine = StartCoroutine(RandomLine());
     }
 
-    private IEnumerator MoveHorizontal(float speed)
+    private protected virtual IEnumerator MoveHorizontal(float speed)
     {
         _anim.applyRootMotion = false;
         _pointStart = _pointFinish;
@@ -155,7 +181,7 @@ public class MouseController : Singleton<MouseController>
         _movingCoroutine = StartCoroutine(MoveCoroutine(speed));
     }
 
-    private IEnumerator MoveCoroutine(float VectorX)
+    private protected virtual IEnumerator MoveCoroutine(float VectorX)
     {
         _isMoving = true;
         while (Mathf.Abs(_pointStart - transform.position.x) < _laneOffset)
@@ -197,12 +223,4 @@ public class MouseController : Singleton<MouseController>
         }
     }
 
-    void Start()
-    {
-        _rb = GetComponent<Rigidbody>();
-        _anim = GetComponent<Animator>();
-        _transCat = GetComponent<Transform>();
-        startGamePosition = transform.position;
-        startGameRotation = transform.rotation;
-    }
 }
