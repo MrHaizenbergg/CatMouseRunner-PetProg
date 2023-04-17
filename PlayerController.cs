@@ -38,7 +38,7 @@ public class PlayerController : Singleton<PlayerController>
     private float _lastVectorX;
 
     private float _jumpPower = 14;
-    private float _jumpGravity = -40;
+    private float _jumpGravity = -40f;
     private float _realGravity = -9.8f;
 
     private bool _isSpeedIncrease;
@@ -161,8 +161,9 @@ public class PlayerController : Singleton<PlayerController>
 
     public IEnumerator SpeedIncrease()
     {
-        rb.velocity = new Vector3(0, 0, 2f);
-        yield return new WaitForSeconds(2);
+        Vector3 pos = new Vector3(0, 0, 1f);
+        rb.AddForce(pos, ForceMode.Impulse);
+        yield return new WaitForSeconds(0.5f);
         _isSpeedIncrease = false;
     }
 
@@ -175,14 +176,17 @@ public class PlayerController : Singleton<PlayerController>
 
         if (Weapons[0] != null && currentIndex == 0)
         {
+
             _smWeapon.ChangeState(new ShotGunState());
         }
         if (Weapons[1] != null && currentIndex == 1)
         {
+
             _smWeapon.ChangeState(new DynamiteState());
         }
         if (Weapons[2] != null && currentIndex == 2)
         {
+
             _smWeapon.ChangeState(new GreatWeaponState());
         }
     }
@@ -219,6 +223,7 @@ public class PlayerController : Singleton<PlayerController>
             Weapons[0].SetActive(false);
 
         Weapons[0] = null;
+        weaponsForBack[0].SetActive(false);
         activeShotGunButton.gameObject.SetActive(false);
     }
 
@@ -252,6 +257,7 @@ public class PlayerController : Singleton<PlayerController>
             Weapons[1].SetActive(false);
 
         Weapons[1] = null;
+        weaponsForBack[1].SetActive(false);
         activeThrowDynamit.gameObject.SetActive(false);
     }
 
@@ -299,20 +305,6 @@ public class PlayerController : Singleton<PlayerController>
         anim.SetTrigger("isVictory");
     }
 
-    void Jump()
-    {
-        anim.applyRootMotion = false;
-
-        if (_isGreatWeaponJump == true)
-            anim.SetTrigger("isGreatWeaponJump");
-        else
-            anim.SetBool("isJump", true);
-
-        _isJumping = true;
-        rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
-        Physics.gravity = new Vector3(0, _jumpGravity, 0);
-        StartCoroutine(StopJumpCoroutine());
-    }
 
     public void Death()
     {
@@ -372,6 +364,21 @@ public class PlayerController : Singleton<PlayerController>
         _isMoving = false;
     }
 
+    void Jump()
+    {
+        anim.applyRootMotion = false;
+
+        if (_isGreatWeaponJump == true)
+            anim.SetTrigger("isGreatWeaponJump");
+        else
+            anim.SetBool("isJump", true);
+
+        _isJumping = true;
+        rb.AddForce(Vector3.up * _jumpPower, ForceMode.Impulse);
+        Physics.gravity = new Vector3(0, _jumpGravity, 0);
+        StartCoroutine(StopJumpCoroutine());
+    }
+
     private IEnumerator StopJumpCoroutine()
     {
         do
@@ -396,7 +403,7 @@ public class PlayerController : Singleton<PlayerController>
         _col.center = new Vector3(0, 0.28f, 1.27f);
         _col.height = 0.58f;
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.6f);
 
         _col.center = new Vector3(0, 0.67f, 0f);
         _col.height = 1.313049f;
